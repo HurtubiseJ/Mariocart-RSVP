@@ -1,0 +1,9 @@
+{
+  "name": "mariokart-rsvp-server",
+  "version": "0.1.0",
+  "description": "HTTP API for the annual Mario Kart tournament RSVP site.",
+  "dependencies": [
+    "crow",
+    "libpqxx"
+  ]
+}

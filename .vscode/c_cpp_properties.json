@@ -1,0 +1,24 @@
+{
+  "version": 4,
+  "configurations": [
+    {
+      "name": "Mac (vcpkg + CMake)",
+      "compilerPath": "/usr/bin/clang++",
+      "cStandard": "c17",
+      "cppStandard": "c++20",
+      "intelliSenseMode": "macos-clang-arm64",
+
+      // Primary source of truth: the compile DB CMake generates
+      // (CMAKE_EXPORT_COMPILE_COMMANDS=ON in the preset). Exists after
+      // `make configure`.
+      "compileCommands": "${workspaceFolder}/apps/server/build/compile_commands.json",
+
+      // Fallback include paths so headers (e.g. db.hpp) opened on their own
+      // still resolve before/independently of the compile DB.
+      "includePath": [
+        "${workspaceFolder}/apps/server/src",
+        "${workspaceFolder}/apps/server/build/vcpkg_installed/arm64-osx/include"
+      ]
+    }
+  ]
+}

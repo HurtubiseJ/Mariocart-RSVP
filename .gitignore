@@ -1,0 +1,24 @@
+# Environment / secrets
+.env
+.env.*
+
+# Build output
+apps/server/build/
+build/
+
+# vcpkg (cloned locally by `make setup`)
+/vcpkg/
+vcpkg_installed/
+
+# CMake
+CMakeUserPresets.json
+compile_commands.json
+
+# Compiled objects / binaries
+*.o
+*.obj
+
+# Python test tooling
+__pycache__/
+.pytest_cache/
+apps/server/__tests__/.venv/

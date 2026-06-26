@@ -1,0 +1,11 @@
+# Python test dependencies for the server's HTTP integration tests.
+#
+# These tests treat the C++ server as a black box and exercise it over HTTP,
+# so the only things we need are a test runner and an HTTP client.
+#
+# Install into a local virtualenv (test.sh does this automatically):
+#   python3 -m venv apps/server/__tests__/.venv
+#   apps/server/__tests__/.venv/bin/pip install -r apps/server/requirements-dev.txt
+
+pytest>=8.0
+requests>=2.31
