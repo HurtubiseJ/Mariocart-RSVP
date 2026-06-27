@@ -27,7 +27,11 @@ WORKDIR /src
 
 # 1) Resolve C++ dependencies first so they stay cached across source edits.
 COPY apps/server/vcpkg.json apps/server/vcpkg.json
-RUN cd apps/server && "$VCPKG_ROOT/vcpkg" install --triplet x64-linux
+RUN cd apps/server && "$VCPKG_ROOT/vcpkg" install --triplet x64-linux \
+ || { echo "================ vcpkg build logs (tails) ================"; \
+      find /opt/vcpkg/buildtrees -maxdepth 2 -name '*.log' \
+        -printf '\n########## %p ##########\n' -exec tail -n 60 {} \; ; \
+      exit 1; }
 
 # 2) Build the server itself in Release (the checked-in preset is Debug).
 COPY apps/server apps/server
