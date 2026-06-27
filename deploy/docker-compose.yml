@@ -18,7 +18,9 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in deploy/.env}
       POSTGRES_DB: mariokart_rsvp
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      # PG18+ images store data in a versioned subdir and want the PARENT dir
+      # mounted; mounting .../data is incompatible and errors on startup.
+      - pgdata:/var/lib/postgresql
     # Intentionally NOT published to the host: only `server` and the one-shot
     # `migrate` service reach it over the internal compose network. Uncomment
     # to point a local psql client at it.
