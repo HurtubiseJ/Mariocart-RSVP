@@ -53,11 +53,11 @@ export function RsvpForm() {
         inputMode="tel"
         placeholder="(555) 010-1234"
         autoComplete="tel"
-        hint="We'll text you race-day details."
+        hint="For game day details and updates"
         {...register("phone")}
         error={errors.phone?.message}
       />
-      <Field
+      {/* <Field
         label="Email (optional)"
         type="email"
         inputMode="email"
@@ -65,7 +65,7 @@ export function RsvpForm() {
         autoComplete="email"
         {...register("email")}
         error={errors.email?.message}
-      />
+      /> */}
 
       {submitError && (
         <p className="text-sm font-semibold text-mario-red">{submitError}</p>

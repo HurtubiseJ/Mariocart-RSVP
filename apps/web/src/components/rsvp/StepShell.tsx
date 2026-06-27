@@ -32,7 +32,7 @@ export function StepShell({
                 "flex h-8 w-8 items-center justify-center rounded-full border-2 border-ink font-head text-sm font-bold",
                 i < activeIdx && "bg-mario-green text-paper",
                 i === activeIdx && "bg-mario-yellow text-ink",
-                i > activeIdx && "bg-paper text-ink/40",
+                i > activeIdx && "bg-paper text-ink/50",
               )}
               aria-current={i === activeIdx ? "step" : undefined}
             >
@@ -51,8 +51,8 @@ export function StepShell({
       </ol>
 
       <header className="text-center">
-        <h1 className="font-display text-3xl tracking-wide sm:text-4xl">{title}</h1>
-        {subtitle && <p className="mt-1 text-ink/60">{subtitle}</p>}
+        <h1 className="font-display text-3xl text-paper tracking-wide sm:text-4xl">{title}</h1>
+        {subtitle && <p className="mt-1 text-paper/80">{subtitle}</p>}
       </header>
 
       {children}

@@ -15,32 +15,32 @@ const CHAMPIONS = [
 export default function HistoryPage() {
   return (
     <PageShell title="HISTORY" subtitle="Champions, upsets, and bragging rights.">
-      <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4">
         {CHAMPIONS.map((c) => (
-          <Card key={c.year} className="overflow-hidden">
+        <Card key={c.year} className="overflow-hidden">
             <div className="flex items-center gap-3 bg-mario-blue px-5 py-2.5 text-paper">
-              <span className="font-display text-2xl">{c.year}</span>
-              <span className="font-head text-sm opacity-80">Final at {c.track}</span>
+            <span className="font-display text-2xl">{c.year}</span>
+            <span className="font-head text-sm opacity-80">Final at {c.track}</span>
             </div>
             <div className="grid grid-cols-2 divide-x-2 divide-silver">
-              <div className="p-4">
+            <div className="p-4">
                 <p className="font-head text-[10px] font-bold tracking-wider text-ink/50 uppercase">
-                  🏆 Champion
+                🏆 Champion
                 </p>
                 <p className="font-head text-lg font-bold text-ink">{c.champ}</p>
-              </div>
-              <div className="p-4">
+            </div>
+            <div className="p-4">
                 <p className="font-head text-[10px] font-bold tracking-wider text-ink/50 uppercase">
-                  Runner-up
+                Runner-up
                 </p>
                 <p className="font-head text-lg font-semibold text-ink/80">
-                  {c.runnerUp}
+                {c.runnerUp}
                 </p>
-              </div>
             </div>
-          </Card>
+            </div>
+        </Card>
         ))}
-      </div>
+    </div>
     </PageShell>
   );
 }

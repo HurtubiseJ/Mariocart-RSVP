@@ -34,7 +34,7 @@ export default function RsvpPage() {
           <StepShell
             step={step}
             title="Join the Cup"
-            subtitle="Sign up, then earn your seed in two quick minigames."
+            subtitle="Sign up now for the chance to achieve glory. (Don't mind the extra steps...)"
           >
             <RsvpForm />
           </StepShell>

@@ -10,9 +10,11 @@ export interface RoundCfg {
 
 // Rounds 1-2: a single zone. Round 3: two zones (two taps). Speed ramps up.
 export const ROUNDS: RoundCfg[] = [
-  { zones: 1, halfWidth: 0.36, speed: 3.0 },
-  { zones: 1, halfWidth: 0.3, speed: 3.7 },
-  { zones: 2, halfWidth: 0.26, speed: 4.3 },
+  { zones: 1, halfWidth: 0.36, speed: 3.5 },
+  { zones: 1, halfWidth: 0.3, speed: 4.2 },
+  { zones: 2, halfWidth: 0.35, speed: 3.7 },
+  { zones: 1, halfWidth: 0.26, speed: 4.5 },
+  { zones: 2, halfWidth: 0.27, speed: 4.2 },
 ];
 
 export const TOTAL_ROUNDS = ROUNDS.length;

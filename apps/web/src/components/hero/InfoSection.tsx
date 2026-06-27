@@ -22,7 +22,6 @@ const ACCENT_TEXT: Record<Accent, string> = {
 
 export interface InfoSectionProps {
   index: number;
-  icon: string;
   title: string;
   blurb: string;
   href: string;
@@ -33,7 +32,6 @@ export interface InfoSectionProps {
 /** A scroll-revealed card that links to a sub-page. */
 export function InfoSection({
   index,
-  icon,
   title,
   blurb,
   href,
@@ -59,13 +57,10 @@ export function InfoSection({
               ACCENT_TEXT[accent],
             )}
           >
-            <span className="text-3xl" aria-hidden>
-              {icon}
-            </span>
             <h3 className="font-display text-2xl tracking-wide">{title}</h3>
           </div>
           <div className="flex items-end justify-between gap-4 px-5 py-5">
-            <p className="text-ink/75">{blurb}</p>
+            <p className="font-bold text-ink/75">{blurb}</p>
             <span className="shrink-0 self-center rounded-full border-2 border-ink bg-paper px-4 py-2 font-head text-sm font-bold whitespace-nowrap transition-colors group-hover:bg-ink group-hover:text-paper">
               {cta} →
             </span>

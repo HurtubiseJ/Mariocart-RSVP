@@ -8,10 +8,10 @@ export const metadata: Metadata = { title: "Event Info — Beerio Kart World Cup
 
 // Placeholder content — edit freely.
 const DETAILS = [
-  { icon: "📅", label: "Date", value: "Saturday, August 15, 2026" },
-  { icon: "🕒", label: "Time", value: "Doors 2:00 PM · First race 3:00 PM" },
-  { icon: "📍", label: "Place", value: "The Rec Room — 123 Rainbow Road" },
-  { icon: "🎟️", label: "Entry", value: "Free with RSVP · BYO controller optional" },
+  { icon: "", label: "Date", value: "Saturday, August 15, 2026" },
+  { icon: "", label: "Time", value: "Doors 2:00 PM · First race 3:00 PM" },
+  { icon: "", label: "Place", value: "The Rec Room — 123 Rainbow Road" },
+  { icon: "", label: "Entry", value: "Free with RSVP · BYO controller optional" },
 ];
 
 export default function InfoPage() {
@@ -37,7 +37,7 @@ export default function InfoPage() {
         <Card className="overflow-hidden">
           {/* Map placeholder */}
           <div className="flex h-44 items-center justify-center bg-asphalt text-paper/50">
-            <span className="font-head text-sm">🗺️ Map coming soon</span>
+            <span className="font-head text-sm">Map coming soon</span>
           </div>
           <div className="flex flex-col items-center gap-3 p-5 text-center">
             <p className="text-ink/70">

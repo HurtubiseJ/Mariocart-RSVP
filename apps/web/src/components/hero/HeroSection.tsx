@@ -37,17 +37,7 @@ export function HeroSection() {
   }, [setPastHero]);
 
   return (
-    <section className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden bg-asphalt px-5 text-center">
-      {/* faint title-art backdrop */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.06]"
-        style={{
-          backgroundImage: "url(/assets/title.jpeg)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-        aria-hidden
-      />
+    <section className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden px-5 text-center">
       {/* floating confetti dots */}
       {DOTS.map((dot, i) => (
         <motion.span

@@ -135,8 +135,44 @@ int main() {
         }
     });
 
+    CROW_ROUTE(app, "/api/game").methods("POST"_method)([&dsn](const crow::request& req) {
+        try {
+            auto x = crow::json::load(req.body);
+            if (!x || !x["rsvp_id"] || !x["game"] || !x["trial"] || !x["score"])
+                return crow::response{400, std::string{"Unable to parse request body. Requires (rsvp_id, game, score)"}};
+
+            pqxx::connection conn{dsn};
+            pqxx::work tx{conn};
+            pqxx::result r = tx.exec_params("INSERT INTO game_scores "
+                                            "(rsvp, game, trial, score) ", 
+                                            "VALUES ($1, $2, $3, $4);",
+                                            x["rsvp_id"], x["game"], x["trial"], x["score"]);
+            
+            crow::json::wvalue j;
+            j['status'] = "ok";
+            return crow::response{200, j};
+        } catch (std::exception& e) {
+            return crow::response{500, std::string{"db error: "} + e.what()};
+        }
+    });
+
+    CROW_ROUTE(app, "/api/standings").methods("GET"_method)([&dsn]() {
+        try {
+            pqxx::connection conn{dsn};
+            pqxx::work tx{conn};
+            pqxx::result r = tx.exec("SELECT * from standings order by total_score DESC;");
+            tx.commit();
+
+            std::vector<crow::json::wvalue> items;
+            for (const auto& row : r) items.push_back(db::row_to_json(pqxx::row{row}));
+            return crow::response{crow::json::wvalue(items)};
+        } catch (const std::exception& e) {
+            return crow::response{500, std::string{"db error: "} + e.what()};
+        }
+    });
+
     const auto port = static_cast<std::uint16_t>(std::stoi(db::env_or("PORT", "8080")));
     CROW_LOG_INFO << "RSVP server listening on port " << port;
     app.port(port).multithreaded().run();
     return 0;
-u}
+}

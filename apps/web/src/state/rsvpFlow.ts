@@ -26,6 +26,7 @@ interface RsvpFlowState {
   error: string | null;
 
   rsvp: Rsvp | null;
+//   submittedRsvp: boolean;
   reaction: ReactionScore | null;
   flappy: FlappyScore | null;
   outcome: SeedOutcome | null;
@@ -33,6 +34,7 @@ interface RsvpFlowState {
   setRsvp: (rsvp: Rsvp) => void;
   completeReaction: (result: ReactionScore) => void;
   completeFlappy: (result: FlappyScore) => void;
+//   submitRSVP: () => Promise<void>;
   submitAndSeed: () => Promise<void>;
   reset: () => void;
 }
@@ -42,6 +44,7 @@ const initial = {
   status: "idle" as const,
   error: null,
   rsvp: null,
+//   submittedRsvp: false,
   reaction: null,
   flappy: null,
   outcome: null,
@@ -61,6 +64,24 @@ export const useRsvpFlow = create<RsvpFlowState>()(
         set({ flappy: result });
         void get().submitAndSeed();
       },
+
+    //   submitRSVP: async () => {
+    //     const { rsvp } = get();
+    //     try {
+    //         if (!rsvp || !rsvp?.name || !rsvp?.phone) {
+    //             throw new Error("Invalid RSVP: ", rsvp);
+    //         }
+    //         const res = await api.createRsvp({
+    //             name: rsvp.name,
+    //             phone: rsvp.phone,
+    //         });
+    //     } catch (e) {
+    //       set({
+    //         status: "error",
+    //         error: e instanceof Error ? e.message : "Unable to save RSVP, please try again.",
+    //       });
+    //     }
+    //   },
 
       submitAndSeed: async () => {
         const { rsvp, reaction, flappy } = get();

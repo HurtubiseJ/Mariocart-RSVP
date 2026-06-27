@@ -120,6 +120,7 @@ const realClient: ApiClient = {
   },
 
   async getStandings(): Promise<StandingsResponse> {
+    console.log("Get standings");
     const raw = await request<unknown>("/api/standings");
     return standingsResponseSchema.parse(raw).map((e) => ({
       rsvpId: e.rsvp_id,

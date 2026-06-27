@@ -17,7 +17,7 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
 
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={inputId} className="font-head text-sm font-semibold text-ink">
+      <label htmlFor={inputId} className="font-head text-sm font-semibold text-paper/90">
         {label}
       </label>
       <input
@@ -27,14 +27,14 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
         aria-describedby={error ? errorId : undefined}
         className={cn(
           "w-full rounded-xl border-[3px] border-ink bg-paper px-4 py-3 text-base",
-          "text-ink placeholder:text-silver",
+          "text-ink placeholder:text-ink/50",
           "focus:outline-none focus-visible:border-mario-blue",
           error && "border-mario-red",
           className,
         )}
         {...props}
       />
-      {hint && !error && <p className="text-xs text-ink/50">{hint}</p>}
+      {hint && !error && <p className="text-xs text-paper/50">{hint}</p>}
       {error && (
         <p id={errorId} className="text-xs font-semibold text-mario-red">
           {error}

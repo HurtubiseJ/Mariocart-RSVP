@@ -4,6 +4,7 @@ import "./globals.css";
 import { Footer } from "@/components/layout/Footer";
 import { TopNav } from "@/components/layout/TopNav";
 import { RouteTransition } from "@/components/transition/RouteTransition";
+import { ScrollBackground } from "@/components/hero/ScrollBackground";
 
 const lilita = Lilita_One({
   weight: "400",
@@ -58,7 +59,10 @@ export default function RootLayout({
         {/* Persistent transition overlay — must live here, not in template.tsx */}
         <RouteTransition />
         <TopNav />
-        <div className="min-h-[100dvh]">{children}</div>
+        <div className="relative">
+            <ScrollBackground />
+            <div className="min-h-[100dvh]">{children}</div>
+        </div>
         <Footer />
       </body>
     </html>

@@ -4,10 +4,10 @@ export const FLAPPY = {
   flapVelocity: -560, // px/s applied on each tap
   maxFall: 780, // px/s terminal velocity
   scrollSpeed: 168, // px/s — constant the whole run
-  gapFraction: 0.34, // gap height as a fraction of play area
+  gapFraction: 0.36, // gap height as a fraction of play area
   pipeWidth: 70,
-  pipeSpacing: 235, // horizontal px between consecutive pipes
-  firstPipeDelay: 280, // px of runway before the first pipe
+  pipeSpacing: 260, // horizontal px between consecutive pipes
+  firstPipeDelay: 300, // px of runway before the first pipe
   birdRadius: 16,
   birdXFraction: 0.3,
   groundFraction: 0.12, // ground band height
