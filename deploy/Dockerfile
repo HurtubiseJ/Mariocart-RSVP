@@ -1,13 +1,11 @@
 # syntax=docker/dockerfile:1
 
-###############################################################################
 # Build stage — compile the Crow + libpqxx server with vcpkg.
 #
 # This is the slow part: vcpkg builds Crow, asio, OpenSSL and libpq (from
 # PostgreSQL source) from scratch. Thanks to layer caching that only happens
 # when apps/server/vcpkg.json changes — editing C++ source recompiles just the
 # server, not the dependency tree.
-###############################################################################
 FROM debian:bookworm AS build
 
 # Tools vcpkg needs to bootstrap and to build the ports above (bison/flex/perl
@@ -38,9 +36,7 @@ RUN cmake -S apps/server -B apps/server/build -G Ninja \
         -DCMAKE_BUILD_TYPE=Release \
     && cmake --build apps/server/build
 
-###############################################################################
 # Runtime stage — just the binary and the few shared libs it still needs.
-###############################################################################
 FROM debian:bookworm-slim AS runtime
 
 # vcpkg static-links most things; these cover the remaining dynamic deps plus

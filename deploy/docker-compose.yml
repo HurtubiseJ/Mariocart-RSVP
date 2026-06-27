@@ -4,7 +4,6 @@ name: mariokart-rsvp
 # the repo root that the Makefile uses):
 #
 #   cd deploy
-#   cp .env.example .env        # then edit POSTGRES_PASSWORD
 #   docker compose up -d --build
 #
 # Apply DB migrations explicitly (one-shot, see the `migrate` service below):

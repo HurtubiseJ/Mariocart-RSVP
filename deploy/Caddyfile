@@ -1,23 +1,4 @@
-# Caddy site block for the RSVP API — sslip.io (no domain needed).
-#
-# Topology: Caddy runs on the PROXMOX HOST (public IP, :80/:443) and reverse-
-# proxies across the LAN to this VM (192.168.0.104). Add this block to the
-# host's existing Caddy config — paste it into the main /etc/caddy/Caddyfile,
-# or drop this file in your conf.d and `import` it — then:
-#   systemctl reload caddy        # or: caddy reload --config /etc/caddy/Caddyfile
-#
-# ── Pick the hostname ────────────────────────────────────────────────────────
-# sslip.io resolves any name embedding an IP straight to that IP. The hostname
-# must embed the PROXMOX HOST'S PUBLIC IP — that is where this name resolves,
-# where Caddy answers, and where Let's Encrypt validates. It is NOT the VM's
-# private IP. Write the IP with dashes for dots. Example, public IP 203.0.113.7:
-#
-#   mk.203-0-113-7.sslip.io   ->  resolves to 203.0.113.7  ->  host Caddy
-#
-# Caddy fetches a real Let's Encrypt cert for it automatically — this is the
-# HTTPS the Vercel frontend requires (no mixed-content errors).
-#
-# Replace 203-0-113-7 with your host's real public IP (dashed).
+# Replace 203-0-113-7 with host's real public IP (dashed).
 
 mk.203-0-113-7.sslip.io {
 	encode zstd gzip

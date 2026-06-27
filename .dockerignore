@@ -9,7 +9,7 @@ vcpkg/
 apps/server/vcpkg_installed/
 apps/server/.cache/
 
-# Frontend is deployed separately (Vercel); not part of the server image.
+# Frontend is deployed separately and not part of the server image.
 apps/web/
 
 # Misc
