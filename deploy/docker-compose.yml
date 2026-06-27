@@ -1,0 +1,74 @@
+name: mariokart-rsvp
+
+# Run from this directory so Compose reads deploy/.env (and NOT the dev .env at
+# the repo root that the Makefile uses):
+#
+#   cd deploy
+#   cp .env.example .env        # then edit POSTGRES_PASSWORD
+#   docker compose up -d --build
+#
+# Apply DB migrations explicitly (one-shot, see the `migrate` service below):
+#   docker compose --profile tools run --rm migrate
+
+services:
+  db:
+    image: postgres:18-alpine        # pin lower (e.g. 17-alpine) if you prefer
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: mariokart
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in deploy/.env}
+      POSTGRES_DB: mariokart_rsvp
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # Intentionally NOT published to the host: only `server` and the one-shot
+    # `migrate` service reach it over the internal compose network. Uncomment
+    # to point a local psql client at it.
+    # ports:
+    #   - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mariokart -d mariokart_rsvp"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  server:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://mariokart:${POSTGRES_PASSWORD}@db:5432/mariokart_rsvp
+      PORT: "8080"
+    # Publish on the VM's LAN interface so the Proxmox host's Caddy can reach it
+    # at 192.168.0.104:8080. The VM has no public IP, so this is exposed to the
+    # LAN only — never directly to the internet. Set BIND_HOST=192.168.0.104 in
+    # deploy/.env to bind just that NIC; default 0.0.0.0 binds all interfaces.
+    ports:
+      - "${BIND_HOST:-0.0.0.0}:8080:8080"
+
+  # One-shot migration runner. NOT started by `up` (it's behind the `tools`
+  # profile). It runs db/migrations/*.sql in order and stops on the first error.
+  #   docker compose --profile tools run --rm migrate
+  migrate:
+    image: postgres:18-alpine
+    profiles: ["tools"]
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://mariokart:${POSTGRES_PASSWORD}@db:5432/mariokart_rsvp
+    volumes:
+      - ../db/migrations:/migrations:ro
+    entrypoint: ["sh", "-c"]
+    command:
+      - |
+        for f in /migrations/*.sql; do
+          echo "applying $$f";
+          psql "$$DATABASE_URL" -v ON_ERROR_STOP=1 -f "$$f" || exit 1;
+        done
+
+volumes:
+  pgdata:

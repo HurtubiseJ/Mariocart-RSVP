@@ -54,21 +54,6 @@ export default function Home() {
       {SECTIONS.map((s, i) => (
         <SlideDateTimeSection key={s.href} index={i} {...s} />
       ))}
-
-      <div className="mx-auto flex w-full max-w-2xl flex-col gap-7 px-5 py-16 sm:py-20">
-        <header className="text-center">
-          <h2 className="font-display text-3xl tracking-wide text-paper sm:text-4xl">
-            THE LINEUP
-          </h2>
-          <p className="mt-1 text-paper/70">
-            Everything you need before race day.
-          </p>
-        </header>
-
-        {SECTIONS.map((s, i) => (
-          <InfoSection key={s.href} index={i} {...s} />
-        ))}
-      </div>
     </main>
   );
 }

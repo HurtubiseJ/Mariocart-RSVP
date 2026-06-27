@@ -43,11 +43,39 @@ export interface FlappyScore {
   score: number;
 }
 
+export type Game = "flappy" | "reaction";
+
+export interface GameSubmitRequest {
+    rsvp_id: number;
+    game: Game;
+    score: number;
+    trial: number;
+    details: Record<string, unknown>;
+}
+
 export interface ScoreSubmitRequest {
   rsvpId: number;
   reaction: ReactionScore;
   flappy: FlappyScore;
   cumulativeScore: number;
+}
+
+/** One stored game's result for a player, shown in the standings breakdown. */
+export interface GameBreakdown {
+  game: Game;
+  trial: number;
+  /** The weighted contribution this game added to the cumulative score. */
+  score: number;
+  /** Raw game data (rawScore + per-game fields); shape varies by game. */
+  details: Record<string, unknown> | null;
+}
+
+// --- Un-RSVP (decommit) ---------------------------------------------------
+
+export interface UnrsvpRequest {
+  name: string;
+  phone: string;
+  reason: string;
 }
 
 export interface ScoreSubmitResponse {
@@ -67,6 +95,8 @@ export interface StandingEntry {
   cumulativeScore: number;
   seed: number;
   rank: number;
+  /** Per-game breakdown, when the backend provides it (absent for seeded demo rows). */
+  games?: GameBreakdown[];
 }
 
 export type StandingsResponse = StandingEntry[];
@@ -76,6 +106,8 @@ export type StandingsResponse = StandingEntry[];
 export interface ApiClient {
   health(): Promise<boolean>;
   createRsvp(body: RsvpCreateRequest): Promise<Rsvp>;
+  submitGame(body: GameSubmitRequest): Promise<boolean>;
   submitScore(body: ScoreSubmitRequest): Promise<ScoreSubmitResponse>;
   getStandings(): Promise<StandingsResponse>;
+  unrsvp(body: UnrsvpRequest): Promise<boolean>;
 }

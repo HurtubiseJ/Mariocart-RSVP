@@ -5,6 +5,8 @@ import type {
   ScoreSubmitRequest,
   ScoreSubmitResponse,
   StandingsResponse,
+  GameSubmitRequest,
+  UnrsvpRequest,
 } from "./api.types";
 import { env } from "./env";
 import { mockClient } from "./mock/mockClient";
@@ -99,6 +101,21 @@ const realClient: ApiClient = {
     };
   },
 
+  async submitGame(body: GameSubmitRequest): Promise<boolean> {
+    const raw = await request<unknown>("/api/game", {
+      method: "POST",
+      body: JSON.stringify({
+        rsvp_id: body.rsvp_id,
+        game: body.game,
+        score: body.score,
+        trial: body.trial,
+        details: body.details,
+      }),
+    });
+    // Backend replies { "status": "ok" }.
+    return (raw as { status?: string }).status === "ok";
+  },
+
   async submitScore(body: ScoreSubmitRequest): Promise<ScoreSubmitResponse> {
     const raw = await request<unknown>("/api/scores", {
       method: "POST",
@@ -120,7 +137,6 @@ const realClient: ApiClient = {
   },
 
   async getStandings(): Promise<StandingsResponse> {
-    console.log("Get standings");
     const raw = await request<unknown>("/api/standings");
     return standingsResponseSchema.parse(raw).map((e) => ({
       rsvpId: e.rsvp_id,
@@ -128,7 +144,25 @@ const realClient: ApiClient = {
       cumulativeScore: e.cumulative_score,
       seed: e.seed,
       rank: e.rank,
+      games: e.games?.map((g) => ({
+        game: g.game,
+        trial: g.trial,
+        score: g.score,
+        details: g.details,
+      })),
     }));
+  },
+
+  async unrsvp(body: UnrsvpRequest): Promise<boolean> {
+    const raw = await request<unknown>("/api/unrsvp", {
+      method: "POST",
+      body: JSON.stringify({
+        name: body.name,
+        phone: body.phone,
+        reason: body.reason,
+      }),
+    });
+    return (raw as { status?: string }).status === "ok";
   },
 };
 
@@ -157,6 +191,8 @@ function withFallback<TArgs extends unknown[], TR>(
 export const api: ApiClient = {
   health: withFallback(realClient.health, mockClient.health),
   createRsvp: withFallback(realClient.createRsvp, mockClient.createRsvp),
+  submitGame: withFallback(realClient.submitGame, mockClient.submitGame),
   submitScore: withFallback(realClient.submitScore, mockClient.submitScore),
   getStandings: withFallback(realClient.getStandings, mockClient.getStandings),
+  unrsvp: withFallback(realClient.unrsvp, mockClient.unrsvp),
 };

@@ -6,6 +6,8 @@ const LINKS = [
   { href: "/rules", label: "Rules" },
   { href: "/history", label: "History" },
   { href: "/info1", label: "Event Info" },
+  { href: "/scoring", label: "Scoring" },
+  { href: "/unrsvp", label: "Un-RSVP" },
 ];
 
 export function Footer() {

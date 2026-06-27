@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { FlappyGame } from "@/components/games/FlappyGame";
 import { ReactionGame } from "@/components/games/ReactionGame";
+import { TransitionLink } from "@/components/transition/TransitionLink";
 import { RsvpForm } from "@/components/rsvp/RsvpForm";
 import { SeedReveal } from "@/components/rsvp/SeedReveal";
 import { StepShell } from "@/components/rsvp/StepShell";
@@ -17,7 +18,7 @@ export default function RsvpPage() {
   const error = useRsvpFlow((s) => s.error);
   const completeReaction = useRsvpFlow((s) => s.completeReaction);
   const completeFlappy = useRsvpFlow((s) => s.completeFlappy);
-  const submitAndSeed = useRsvpFlow((s) => s.submitAndSeed);
+  const retry = useRsvpFlow((s) => s.retry);
 
   // Gate render until the persisted store has rehydrated (avoids SSR mismatch).
   const [mounted, setMounted] = useState(false);
@@ -37,14 +38,41 @@ export default function RsvpPage() {
             subtitle="Sign up now for the chance to achieve glory. (Don't mind the extra steps...)"
           >
             <RsvpForm />
+            <p className="mt-4 text-center text-sm text-paper/60">
+              Already signed up but can&apos;t make it?{" "}
+              <TransitionLink
+                href="/unrsvp"
+                className="font-head font-semibold text-mario-yellow underline underline-offset-4"
+              >
+                Un-RSVP
+              </TransitionLink>
+            </p>
           </StepShell>
         ) : step === "reaction" ? (
           <StepShell
             step={step}
             title="Skill Check"
-            subtitle="Seeding game 1 of 2 — three rounds."
+            subtitle="Seeding game 1 of 2 — five rounds."
           >
-            <ReactionGame onComplete={completeReaction} />
+            {status === "submitting" ? (
+              <div className="flex flex-col items-center gap-4 py-20">
+                <Spinner className="h-10 w-10" />
+                <p className="font-head font-semibold text-ink/60">
+                  Saving your run…
+                </p>
+              </div>
+            ) : status === "error" ? (
+              <div className="flex flex-col items-center gap-4 py-16 text-center">
+                <p className="font-semibold text-mario-red">
+                  {error ?? "Could not save your score."}
+                </p>
+                <Button variant="red" onClick={() => void retry()}>
+                  Retry
+                </Button>
+              </div>
+            ) : (
+              <ReactionGame onComplete={completeReaction} />
+            )}
           </StepShell>
         ) : step === "flappy" ? (
           <StepShell
@@ -64,7 +92,7 @@ export default function RsvpPage() {
                 <p className="font-semibold text-mario-red">
                   {error ?? "Could not save your score."}
                 </p>
-                <Button variant="red" onClick={() => void submitAndSeed()}>
+                <Button variant="red" onClick={() => void retry()}>
                   Retry
                 </Button>
               </div>

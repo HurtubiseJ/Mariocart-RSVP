@@ -1,7 +1,7 @@
 import type { ReactionScore } from "@/lib/api.types";
 import { buildReactionScore } from "@/lib/scoring";
 import type { Game, GameContext, HudState, PointerSample } from "../engine/types";
-import { COOLDOWN_MS, ROUNDS, TOTAL_ROUNDS } from "./reactionConfig";
+import { COOLDOWN_MS, ROUNDS, TOTAL_ROUNDS, UNTAPPED_MISS_DEG } from "./reactionConfig";
 
 interface Zone {
   center: number; // radians
@@ -18,19 +18,24 @@ function angularDistance(a: number, b: number): number {
 
 const radToDeg = (r: number) => (r * 180) / Math.PI;
 
+const START_ANGLE = -Math.PI / 2; // top of the ring
+const norm = (a: number) => ((a % TAU) + TAU) % TAU;
+
 /**
- * Dead-by-Daylight-style skill check. An indicator sweeps a ring; the player
- * taps when it's inside a red target zone. Rounds 1-2 have one zone, round 3
- * has two (two taps). Score rewards accurate hits and penalises distance from
- * the zone centre (see lib/scoring.ts).
+ * Dead-by-Daylight-style skill check. Each round is one full 360° sweep starting
+ * from the top: the indicator makes a single pass and the player taps as it
+ * crosses each red zone. When the revolution completes the round ends — any zone
+ * left un-tapped counts as a miss — and the next round begins. Score rewards
+ * accurate hits and penalises distance from the zone centre (see lib/scoring.ts).
  */
 export class ReactionEngine implements Game<ReactionScore> {
   private roundIdx = 0;
   private zones: Zone[] = [];
   private halfWidth = ROUNDS[0].halfWidth;
   private speed = ROUNDS[0].speed;
-  private tapsRemaining = 1;
-  private angle = -Math.PI / 2;
+  private angle = START_ANGLE;
+  private rotation = 0; // radians swept this round
+  private roundDone = false; // sweep finished; in the brief end-of-round hold
   private cooldown = 0;
   private over = false;
 
@@ -39,7 +44,6 @@ export class ReactionEngine implements Game<ReactionScore> {
   private flash: { hit: boolean; until: number } | null = null;
 
   init(): void {
-    this.angle = -Math.PI / 2;
     this.loadRound(0);
   }
 
@@ -48,19 +52,26 @@ export class ReactionEngine implements Game<ReactionScore> {
     this.roundIdx = i;
     this.halfWidth = cfg.halfWidth;
     this.speed = cfg.speed;
-    this.tapsRemaining = cfg.zones;
+    this.angle = START_ANGLE;
+    this.rotation = 0;
+    this.roundDone = false;
     this.cooldown = 0;
     this.zones = this.makeZones(cfg.zones);
   }
 
+  // Place zones ahead of the start angle within the single sweep, with a run-up
+  // so the player has time to react and (for two zones) clear separation.
   private makeZones(count: number): Zone[] {
-    const first = Math.random() * TAU;
-    if (count === 1) return [{ center: first, consumed: false, hit: false }];
-    // Two zones roughly opposite, jittered, guaranteed not to overlap.
-    const second = first + Math.PI + (Math.random() - 0.5) * 1.2;
+    const leadIn = 0.6; // radians of run-up before the first possible zone
+    if (count === 1) {
+      const offset = leadIn + Math.random() * (TAU - leadIn - 0.3);
+      return [{ center: norm(START_ANGLE + offset), consumed: false, hit: false }];
+    }
+    const o1 = leadIn + Math.random() * (Math.PI - leadIn);
+    const o2 = o1 + 0.8 + Math.random() * (TAU - o1 - 0.8 - 0.2);
     return [
-      { center: first, consumed: false, hit: false },
-      { center: ((second % TAU) + TAU) % TAU, consumed: false, hit: false },
+      { center: norm(START_ANGLE + o1), consumed: false, hit: false },
+      { center: norm(START_ANGLE + o2), consumed: false, hit: false },
     ];
   }
 
@@ -68,22 +79,42 @@ export class ReactionEngine implements Game<ReactionScore> {
     void c;
     if (this.over) return;
 
-    if (this.cooldown > 0) {
+    const delta = (this.speed * dt) / 1000;
+    this.angle = (this.angle + delta) % TAU;
+
+    if (this.roundDone) {
+      // Brief hold (sweep keeps turning for continuity) before the next round.
       this.cooldown -= dt;
       if (this.cooldown <= 0) {
         const next = this.roundIdx + 1;
         if (next >= TOTAL_ROUNDS) this.over = true;
         else this.loadRound(next);
       }
-      // Keep sweeping during the cooldown for visual continuity.
+      return;
     }
 
-    this.angle = (this.angle + (this.speed * dt) / 1000) % TAU;
+    this.rotation += delta;
+    if (this.rotation >= TAU) this.finishRound();
+  }
+
+  private finishRound(): void {
+    // Any zone not tapped during the sweep is a miss.
+    for (const z of this.zones) {
+      if (!z.consumed) {
+        z.consumed = true;
+        z.hit = false;
+        this.missedDistance += UNTAPPED_MISS_DEG;
+      }
+    }
+    this.roundDone = true;
+    this.cooldown = COOLDOWN_MS;
   }
 
   onPointerDown(_p: PointerSample): void {
     void _p;
-    if (this.over || this.cooldown > 0) return;
+    // Taps only count during the active sweep; the round ends on completion, not
+    // on a tap, so the player gets exactly one pass per zone.
+    if (this.over || this.roundDone) return;
     const target = this.nearestUnconsumed();
     if (!target) return;
 
@@ -93,10 +124,7 @@ export class ReactionEngine implements Game<ReactionScore> {
     this.missedDistance += radToDeg(dist);
     target.consumed = true;
     target.hit = within;
-    this.tapsRemaining -= 1;
     this.flash = { hit: within, until: performance.now() + 280 };
-
-    if (this.tapsRemaining <= 0) this.cooldown = COOLDOWN_MS;
   }
 
   private nearestUnconsumed(): Zone | null {

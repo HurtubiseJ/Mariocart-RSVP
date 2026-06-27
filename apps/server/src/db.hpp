@@ -27,7 +27,9 @@ inline crow::json::wvalue row_to_json(const pqxx::row& row) {
     crow::json::wvalue j;
     j["id"]        = row["id"].as<int>();
     j["name"]      = row["name"].as<std::string>();
-    j["email"]     = row["email"].as<std::string>();
+    j["email"]     = row["email"].is_null()
+        ? crow::json::wvalue()
+        : crow::json::wvalue(row["email"].as<std::string>());
     j["phone"]     = row["phone"].as<std::string>();
     j["attending"] = row["attending"].as<bool>();
     j["guests"]    = row["guests"].as<int>();
@@ -41,6 +43,26 @@ inline crow::json::wvalue row_to_json(const pqxx::row& row) {
         : crow::json::wvalue(row["message"].as<std::string>());
 
     j["created_at"] = row["created_at"].as<std::string>();
+    return j;
+}
+
+// Convert one leaderboard row (standings joined to rsvps, with a json-aggregated
+// per-game breakdown) into the JSON the frontend expects. The seed equals the
+// rank: highest cumulative score is seed #1.
+inline crow::json::wvalue standing_to_json(const pqxx::row& row) {
+    crow::json::wvalue j;
+    const int rank = row["rank"].as<int>();
+    j["rsvp_id"]          = row["rsvp_id"].as<int>();
+    j["name"]             = row["name"].as<std::string>();
+    j["cumulative_score"] = row["cumulative_score"].as<int>();
+    j["rank"]             = rank;
+    j["seed"]             = rank;
+
+    // games arrives as a JSON text column (json_agg); re-parse so it nests as a
+    // real array rather than an escaped string.
+    const std::string games =
+        row["games"].is_null() ? std::string("[]") : row["games"].as<std::string>();
+    j["games"] = crow::json::load(games);
     return j;
 }
 

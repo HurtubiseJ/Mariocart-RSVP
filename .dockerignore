@@ -1,0 +1,23 @@
+# Keep the build context small and free of host-specific artifacts. The image
+# only needs apps/server (+ db/migrations is mounted at runtime, not built in).
+.git
+.gitignore
+
+# Vendored vcpkg and all build output — the image clones/builds these itself.
+vcpkg/
+**/build/
+apps/server/vcpkg_installed/
+apps/server/.cache/
+
+# Frontend is deployed separately (Vercel); not part of the server image.
+apps/web/
+
+# Misc
+**/node_modules/
+**/__pycache__/
+**/.pytest_cache/
+**/.venv/
+*.o
+*.obj
+.env
+.env.*
