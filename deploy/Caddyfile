@@ -1,15 +1,51 @@
-# Replace 203-0-113-7 with host's real public IP (dashed).
+# RSVP API — runs on the PROXMOX HOST's Caddy, proxied over the LAN to the VM.
+#
+# Hostname embeds the host's PUBLIC IP (136.243.177.9 -> dashed) via sslip.io;
+# Caddy auto-issues a Let's Encrypt cert for it. The proxy target is the VM's
+# PRIVATE IP (192.168.0.104:8080), which the host reaches over the LAN.
+#
+# NOTE: this file is read by the host's Caddy, NOT by docker compose — the
+# PROXMOX_HOST_IP in deploy/.env does not substitute here, so the IP is inline.
 
-mk.203-0-113-7.sslip.io {
+mk.136-243-177-9.sslip.io {
 	encode zstd gzip
 
-	# Forward across the LAN to the VM running the compose stack. This is the
-	# VM's PRIVATE address (its `inet 192.168.0.104/24`), reachable from the host.
-	# Requires the stack to publish 8080 on the VM's LAN interface, not loopback
-	# — see BIND_HOST in deploy/.env / docker-compose.yml.
-	reverse_proxy 192.168.0.104:8080
+	# Access log for fail2ban to watch (match the path/format your other sites
+	# already use so the existing filter keeps parsing it).
+	log {
+		output file /var/log/caddy/mariokart-rsvp.access.log {
+			roll_size 10MiB
+			roll_keep 5
+		}
+		format json
+	}
+
+	# Transport-security headers. Do NOT add any Access-Control-* (CORS) headers
+	# here — the Crow app sets those; duplicating them breaks browser requests.
+	header {
+		# HSTS is per-host and only applies over HTTPS. Fine on this throwaway
+		# sslip.io name; bump max-age (and consider includeSubDomains) on a real
+		# domain.
+		Strict-Transport-Security "max-age=86400"
+		X-Content-Type-Options    nosniff
+		Referrer-Policy           no-referrer
+		-Server
+	}
+
+	# Bot / probe trap for fail2ban. Reuse the SAME path_regex AND the SAME
+	# response your other vhosts use, so your existing fail2ban filter matches.
+	@scanner_probe path_regex (?i)(\.env|\.git|/wp-admin|/wp-login|/phpmyadmin|\.php)$
+	handle @scanner_probe {
+		respond 403   # or `abort` — whichever your other sites + fail2ban use
+	}
+
+	# Everything else: forward to the C++ server over plain HTTP (TLS terminates
+	# at Caddy above; the upstream has no cert and must stay http).
+	handle {
+		reverse_proxy 192.168.0.104:8080
+	}
 }
 
-# If Let's Encrypt ever refuses to issue for sslip.io (it is occasionally rate-
-# limited at the CA), swap the hostname to the nip.io equivalent
-# (mk.203-0-113-7.nip.io) or to a real subdomain — only this one line changes.
+# If Let's Encrypt ever refuses to issue for sslip.io (occasionally rate-limited
+# at the CA), swap the hostname to the nip.io equivalent (mk.136-243-177-9.nip.io)
+# or a real subdomain — only the site address changes.

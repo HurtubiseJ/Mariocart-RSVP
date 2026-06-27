@@ -20,7 +20,7 @@ int main() {
     // Allow the Next.js frontend (any origin in dev) to call the API.
     auto& cors = app.get_middleware<crow::CORSHandler>();
     cors.global()
-        .origin("*")
+        .origin("https://mariocart-rsvp.vercel.app")
         .methods("GET"_method, "POST"_method, "DELETE"_method)
         .headers("Content-Type");
 
@@ -257,7 +257,6 @@ int main() {
             return crow::response{500, std::string{"db error: "} + e.what()};
         }
     });
-
 
     // GET /api/standings — leaderboard with each player's per-game breakdown.
     CROW_ROUTE(app, "/api/standings").methods("GET"_method)([&dsn]() {
