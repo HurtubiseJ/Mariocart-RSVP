@@ -19,11 +19,11 @@ const ACCENT_VAR: Record<Accent, string> = {
 
 /** Large character art pinned to the right edge, one per slide (by order). */
 const ASSETS = [
-  "/assets/MarioLuigi.png",
-  "/assets/ShyGuyTransBg.png",
-  "/assets/GroupRace.png",
-  "/assets/MarioStance.png", 
-  "/assets/Bowser.png", 
+  "/assets/MarioLuigi.webp",
+  "/assets/ShyGuyTransBg.webp",
+  "/assets/GroupRace.webp",
+  "/assets/MarioStance.webp",
+  "/assets/Bowser.webp",
 ];
 
 /**
@@ -58,62 +58,76 @@ export function SlideDateTimeSection({
     "linear-gradient(to left, color-mix(in srgb, var(--color-ink) 35%, transparent) 0%, transparent 96%)";
 
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, x: fromLeft ? 400 : -400, y: 40 }}
-      animate={visible ? { opacity: 1, x: 0, y: 0 } : {}}
-      transition={{ type: "spring", stiffness: 120, damping: 18 }}
-      className="px-4 py-6 sm:px-6"
-    >
-      <TransitionLink href={href} className="group block">
-        <div className="relative h-[60vh] min-h-[360px] overflow-hidden rounded-pop border-[3px] border-ink shadow-[0_8px_0_0_var(--color-ink)] transition-transform duration-150 group-hover:-translate-y-1 group-active:translate-y-0.5">
-          {/* accent gradient: see-through left → solid accent right */}
-          <div
-            aria-hidden
-            className="absolute inset-0"
-            style={{ background: fromLeft ? leftAccentGradient : rightAccentGradient }}
-          />
-
-          {/* large asset, far right */}
-          <motion.div 
-            aria-hidden 
-            animate={{ y: [0, -16, 0] }}
-            transition={{ duration: 3, repeat: Infinity, delay: 0 }}
-            className={fromLeft ? 
-                "absolute inset-y-0 right-0 w-1/2 duration-200 group-hover:opacity-90" : 
-                "absolute inset-y-0 left-0 w-1/2 duration-200 group-hover:opacity-90;"
-          }>
-            <Image
-              src={asset}
-              alt=""
-              fill
-              sizes="(max-width: 600px) 50vw, 40vw"
-              className="overflow-visible duration-200 group-hover:opacity-70" 
-              style={{ maskImage: assetMask, WebkitMaskImage: assetMask }}
+    // The observed wrapper stays in its layout position (no transform), so the
+    // IntersectionObserver fires reliably. The inner motion.div does the
+    // sliding — if the ref lived on the transformed element, its off-screen
+    // bounding box (x: ±400) would never meet the visibility threshold on
+    // narrow viewports and the card would never reveal.
+    //
+    // overflow-x-clip contains the ±400px slide to this card's lane so the
+    // transform never expands the document width. Without it, the off-screen
+    // cards widen the page past the viewport; mobile then zooms out to fit
+    // (page renders at ~60% width), which (a) drags below-the-fold cards into
+    // view so they reveal at load and (b) snaps the zoom — and the scroll
+    // height — back as each card settles to x:0. `clip` (not `hidden`) keeps
+    // overflow-y visible, so the card's drop shadow still shows.
+    <div ref={ref} className="overflow-x-clip px-4 py-6 sm:px-6">
+      <motion.div
+        initial={{ opacity: 0, x: fromLeft ? 400 : -400, y: 40 }}
+        animate={visible ? { opacity: 1, x: 0, y: 0 } : {}}
+        transition={{ type: "spring", stiffness: 120, damping: 18 }}
+      >
+        <TransitionLink href={href} className="group block">
+          {/* svh (not vh): height stays fixed when the mobile URL bar hides on
+              scroll, so the document height doesn't jump mid-scroll. */}
+          <div className="relative h-[46svh] min-h-[300px] overflow-hidden rounded-pop border-[3px] border-ink shadow-[0_8px_0_0_var(--color-ink)] transition-transform duration-150 group-hover:-translate-y-1 group-active:translate-y-0.5 sm:h-[60svh] sm:min-h-[360px]">
+            {/* accent gradient: see-through left → solid accent right */}
+            <div
+              aria-hidden
+              className="absolute inset-0"
+              style={{ background: fromLeft ? leftAccentGradient : rightAccentGradient }}
             />
-          </motion.div>
 
-          {/* left-edge brighten on hover (sits behind the text) */}
-          <div
-            aria-hidden
-            className={`pointer-events-none absolute inset-y-0 ${fromLeft ? "left-0" : "right-0"} w-2/3 opacity-0 transition-opacity duration-200 group-hover:opacity-100`}
-            style={{ background: fromLeft ? leftBrighten : rightBrighten }}
-          />
+            {/* large asset, far right — wider on mobile to give the art more room */}
+            <motion.div
+              aria-hidden
+              animate={{ y: [0, -16, 0] }}
+              transition={{ duration: 3, repeat: Infinity, delay: 0 }}
+              className={`absolute inset-y-0 w-3/5 duration-200 group-hover:opacity-90 sm:w-1/2 ${fromLeft ? "right-0" : "left-0"}`}
+            >
+              <Image
+                src={asset}
+                alt=""
+                fill
+                sizes="(max-width: 600px) 60vw, 40vw"
+                className="overflow-visible duration-200 group-hover:opacity-70"
+                style={{ maskImage: assetMask, WebkitMaskImage: assetMask }}
+              />
+            </motion.div>
 
-          {/* title + info column, left */}
-          <div className={`absolute ${fromLeft ? "left-0" : "right-0 items-end text-end"} z-10 flex h-full max-w-[58%] flex-col justify-center gap-3 p-8 sm:p-12`}>
-            <h3 className="font-display text-3xl tracking-wide sm:text-5xl">
-              <CycleText text={title} />
-            </h3> 
-            <p className="max-w-md text-paper/80 font-semibold text-lg">{blurb}</p>
+            {/* left-edge brighten on hover (sits behind the text) */}
+            <div
+              aria-hidden
+              className={`pointer-events-none absolute inset-y-0 ${fromLeft ? "left-0" : "right-0"} w-2/3 opacity-0 transition-opacity duration-200 group-hover:opacity-100`}
+              style={{ background: fromLeft ? leftBrighten : rightBrighten }}
+            />
 
-            {/* hover hint */}
-            <span className="mt-2 inline-flex -translate-x-2 items-center gap-2 font-head text-sm font-bold tracking-wide text-paper uppercase opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100">
-                Go to page
-            </span>
+            {/* title + info column — smaller text & tighter padding on mobile,
+                allowed to overlay the art (wider max-width) when space is tight */}
+            <div className={`absolute ${fromLeft ? "left-0" : "right-0 items-end text-end"} z-10 flex h-full max-w-[66%] flex-col justify-center gap-2 p-5 sm:max-w-[58%] sm:gap-3 sm:p-12`}>
+              <h3 className="font-display text-2xl tracking-wide sm:text-5xl">
+                <CycleText text={title} />
+              </h3>
+              <p className="max-w-md font-semibold text-paper/80 text-sm sm:text-lg bg-ink/50 rounded-lg p-2 sm:bg-transparent">{blurb}</p>
+
+              {/* hover hint */}
+              <span className="mt-2 inline-flex -translate-x-2 items-center gap-2 font-head text-sm font-bold tracking-wide text-paper uppercase opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100">
+                  Go to page
+              </span>
+            </div>
           </div>
-        </div>
-      </TransitionLink>
-    </motion.div>
+        </TransitionLink>
+      </motion.div>
+    </div>
   );
 }
