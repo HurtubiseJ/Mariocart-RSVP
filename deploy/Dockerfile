@@ -6,7 +6,10 @@
 # PostgreSQL source) from scratch. Thanks to layer caching that only happens
 # when apps/server/vcpkg.json changes — editing C++ source recompiles just the
 # server, not the dependency tree.
-FROM debian:bookworm AS build
+# trixie (Debian 13) ships GCC 14 — required for C++20 <format> and the
+# gnu::null_terminated_string_arg attribute that current libpqxx uses. bookworm's
+# GCC 12 is too old and fails the dependency build.
+FROM debian:trixie AS build
 
 # Tools vcpkg needs to bootstrap and to build the ports above (bison/flex/perl
 # are for the PostgreSQL/OpenSSL builds).
@@ -41,7 +44,8 @@ RUN cmake -S apps/server -B apps/server/build -G Ninja \
     && cmake --build apps/server/build
 
 # Runtime stage — just the binary and the few shared libs it still needs.
-FROM debian:bookworm-slim AS runtime
+# Must match the build stage's distro so glibc/libstdc++ versions line up.
+FROM debian:trixie-slim AS runtime
 
 # vcpkg static-links most things; these cover the remaining dynamic deps plus
 # CA certs (TLS to the DB) and curl (container healthcheck).
