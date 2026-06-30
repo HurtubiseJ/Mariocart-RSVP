@@ -1,16 +1,17 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
-import { api } from "@/lib/api";
 import { rsvpFormSchema, type RsvpFormValues } from "@/lib/schemas";
 import { useRsvpFlow } from "@/state/rsvpFlow";
 
 export function RsvpForm() {
-  const setRsvp = useRsvpFlow((s) => s.setRsvp);
+  const setNameNumber = useRsvpFlow((s) => s.setNameNumber);
+  const rsvpType = useRsvpFlow((s) => s.rsvp_type);
+
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
@@ -25,12 +26,7 @@ export function RsvpForm() {
   const onSubmit = handleSubmit(async (values) => {
     setSubmitError(null);
     try {
-      const rsvp = await api.createRsvp({
-        name: values.name.trim(),
-        phone: values.phone.trim(),
-        email: values.email && values.email.length > 0 ? values.email : undefined,
-      });
-      setRsvp(rsvp);
+      setNameNumber({ name: values.name.trim(), phone: values.phone.trim() });
     } catch (e) {
       setSubmitError(
         e instanceof Error ? e.message : "Something went wrong — try again.",
@@ -41,8 +37,8 @@ export function RsvpForm() {
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
       <Field
-        label="Name"
-        placeholder="Mario"
+        label="Name (Last, First)"
+        placeholder="Mario, Super"
         autoComplete="name"
         {...register("name")}
         error={errors.name?.message}
@@ -57,15 +53,6 @@ export function RsvpForm() {
         {...register("phone")}
         error={errors.phone?.message}
       />
-      {/* <Field
-        label="Email (optional)"
-        type="email"
-        inputMode="email"
-        placeholder="mario@beerio.gg"
-        autoComplete="email"
-        {...register("email")}
-        error={errors.email?.message}
-      /> */}
 
       {submitError && (
         <p className="text-sm font-semibold text-mario-red">{submitError}</p>
@@ -73,12 +60,12 @@ export function RsvpForm() {
 
       <Button
         type="submit"
-        variant="red"
+        variant={rsvpType === "spectator" ? "red" : "green"}
         size="lg"
         disabled={isSubmitting}
         className="mt-2"
       >
-        {isSubmitting ? "Saving…" : "Confirm & Play 🏁"}
+        Continue →
       </Button>
     </form>
   );

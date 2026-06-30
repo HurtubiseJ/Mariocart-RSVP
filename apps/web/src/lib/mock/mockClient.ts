@@ -57,7 +57,7 @@ interface StoredGame extends GameBreakdown {
 }
 
 function nextId(rsvps: Rsvp[]): number {
-  const localMax = rsvps.reduce((m, r) => Math.max(m, r.id), BASE_MAX_ID);
+  const localMax = rsvps.reduce((m, r) => Math.max(m, r.id ?? 0), BASE_MAX_ID);
   return localMax + 1;
 }
 
@@ -105,6 +105,10 @@ export const mockClient: ApiClient = {
       id: nextId(rsvps),
       name: body.name,
       phone: body.phone,
+      rsvp_type: body.rsvp_type,
+      vibes: body.vibes ?? null,
+      rated_skill: body.rated_skill ?? null,
+      num_breaths: body.num_breaths ?? null,
       email: body.email && body.email.length > 0 ? body.email : null,
       createdAt: new Date().toISOString(),
     };
@@ -154,20 +158,42 @@ export const mockClient: ApiClient = {
 
   async getStandings(): Promise<StandingsResponse> {
     await delay();
+    const rsvps = readJSON<Rsvp[]>(RSVP_KEY, []);
+
+    // Players: the seeded field plus any session players who scored, ranked by
+    // cumulative score. Spectators never play the games, so they never appear
+    // here — they're listed separately below with no score.
     const ranked = [...fullField()].sort(
       (a, b) => b.cumulativeScore - a.cumulativeScore,
     );
-    return ranked.map((p, i): StandingEntry => {
+    const players = ranked.map((p, i): StandingEntry => {
       const games = gamesFor(p.rsvpId);
+      const rsvp = rsvps.find((r) => r.id === p.rsvpId);
       return {
         rsvpId: p.rsvpId,
+        rsvp_type: "player",
         name: p.name,
+        vibes: rsvp?.vibes ?? null,
         cumulativeScore: p.cumulativeScore,
         seed: i + 1,
         rank: i + 1,
         ...(games.length ? { games } : {}),
       };
     });
+
+    const spectators = rsvps
+      .filter((r) => r.rsvp_type === "spectator" && r.id != null)
+      .map((r): StandingEntry => ({
+        rsvpId: r.id as number,
+        rsvp_type: "spectator",
+        name: r.name,
+        vibes: r.vibes ?? null,
+        cumulativeScore: 0,
+        seed: 0,
+        rank: 0,
+      }));
+
+    return [...players, ...spectators];
   },
 
   async unrsvp(body: UnrsvpRequest): Promise<boolean> {

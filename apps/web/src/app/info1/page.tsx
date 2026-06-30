@@ -3,15 +3,16 @@ import { PageShell } from "@/components/layout/PageShell";
 import { TransitionLink } from "@/components/transition/TransitionLink";
 import { buttonClasses } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { EVENT } from "@/lib/event";
 
 export const metadata: Metadata = { title: "Event Info — Beerio Kart World Cup" };
 
-// Placeholder content — edit freely.
 const DETAILS = [
-  { icon: "", label: "Date", value: "Saturday, August 15, 2026" },
-  { icon: "", label: "Time", value: "Doors 2:00 PM · First race 3:00 PM" },
-  { icon: "", label: "Place", value: "The Rec Room — 123 Rainbow Road" },
-  { icon: "", label: "Entry", value: "Free with RSVP · BYO controller optional" },
+  { icon: "📅", label: "Date", value: EVENT.date },
+  { icon: "⏰", label: "Time", value: EVENT.time },
+  { icon: "📍", label: "Place", value: EVENT.place },
+  { icon: "🎟️", label: "Entry", value: EVENT.entry },
+  { icon: "🅿️", label: "Parking", value: EVENT.parking },
 ];
 
 export default function InfoPage() {
@@ -41,8 +42,8 @@ export default function InfoPage() {
           </div>
           <div className="flex flex-col items-center gap-3 p-5 text-center">
             <p className="text-ink/70">
-              Parking out back. Rideshare drop-off at the front door. Please
-              don&apos;t drink and drive — line up a designated driver.
+              {EVENT.parking}. Please don&apos;t drink and drive — line up a
+              designated driver.
             </p>
             <TransitionLink href="/rsvp" className={buttonClasses("green", "md")}>
               RSVP now 🏁

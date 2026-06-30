@@ -93,8 +93,14 @@ export default function StandingsPage() {
     };
   }, []);
 
+  const players = rows?.filter((r) => r.rsvp_type !== "spectator") ?? [];
+  const spectators = rows?.filter((r) => r.rsvp_type === "spectator") ?? [];
+
   return (
-    <PageShell title="STANDINGS" subtitle="Seeds set by skill-check + flappy performance.">
+    <PageShell
+      title="GAME STANDINGS"
+      subtitle="Combo scores from the Skill Check + Beerio Flappy. Tournament seeds come from past tournaments — these scores just break ties and help new players."
+    >
       {error ? (
         <p className="text-center font-semibold text-mario-red">{error}</p>
       ) : !rows ? (
@@ -104,7 +110,7 @@ export default function StandingsPage() {
       ) : (
         <>
           <ol className="flex flex-col gap-2.5">
-            {rows.map((r, i) => {
+            {players.map((r, i) => {
               const expanded = pinnedId === r.rsvpId || hoverId === r.rsvpId;
               return (
                 <li key={r.rsvpId}>
@@ -127,13 +133,13 @@ export default function StandingsPage() {
                       className="flex w-full items-center gap-4 px-4 py-3 text-left focus:outline-none focus-visible:bg-black/5"
                     >
                       <div className="flex w-10 shrink-0 items-center justify-center font-display text-2xl">
-                        {i < 3 ? MEDAL[i] : <span className="text-ink/70">{r.seed}</span>}
+                        {i < 3 ? MEDAL[i] : <span className="text-ink/70">{i + 1}</span>}
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="truncate font-head text-lg font-semibold text-ink">
                           {r.name}
                         </p>
-                        <p className="text-xs text-ink/50">Seed #{r.seed}</p>
+                        <p className="text-xs text-ink/50">Game rank #{i + 1}</p>
                       </div>
                       <div className="text-right">
                         <p className="font-display text-xl leading-none text-ink">
@@ -171,6 +177,41 @@ export default function StandingsPage() {
               );
             })}
           </ol>
+
+          {spectators.length > 0 && (
+            <section className="mt-10">
+              <h2 className="mb-3 text-center font-display text-2xl tracking-wide text-paper">
+                SPECTATORS
+              </h2>
+              <p className="mb-4 text-center text-sm text-paper/60">
+                Cheering from the sidelines — no score, all vibes.
+              </p>
+              <ul className="flex flex-col gap-2.5">
+                {spectators.map((r) => (
+                  <li key={r.rsvpId}>
+                    <Card className="flex items-center gap-4 px-4 py-3">
+                      <div className="flex w-10 shrink-0 items-center justify-center text-2xl">
+                        👀
+                      </div>
+                      <p className="min-w-0 flex-1 truncate font-head text-lg font-semibold text-ink">
+                        {r.name}
+                      </p>
+                      {r.vibes != null && (
+                        <div className="text-right">
+                          <p className="font-display text-xl leading-none text-ink">
+                            {r.vibes}/10
+                          </p>
+                          <p className="font-head text-[10px] tracking-wider text-ink/50 uppercase">
+                            vibes
+                          </p>
+                        </div>
+                      )}
+                    </Card>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
           <p className="mt-8 text-center text-sm text-ink/60">
             <TransitionLink

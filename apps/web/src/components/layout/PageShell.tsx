@@ -5,13 +5,15 @@ export function PageShell({
   title,
   subtitle,
   children,
+  className,
 }: {
   title: string;
   subtitle?: string;
   children: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <main className="min-h-[100dvh] pt-24 pb-16">
+    <main className={`min-h-[100dvh] pt-24 pb-16 ${className}`}>
       <Section>
         <header className="mb-8 text-center">
           <h1 className="font-display text-4xl text-paper tracking-wide sm:text-5xl">{title}</h1>

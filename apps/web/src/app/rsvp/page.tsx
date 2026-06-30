@@ -4,9 +4,15 @@ import { useEffect, useState } from "react";
 import { FlappyGame } from "@/components/games/FlappyGame";
 import { ReactionGame } from "@/components/games/ReactionGame";
 import { TransitionLink } from "@/components/transition/TransitionLink";
+import { Acknowledgments } from "@/components/rsvp/Acknowledgments";
 import { RsvpForm } from "@/components/rsvp/RsvpForm";
 import { SeedReveal } from "@/components/rsvp/SeedReveal";
+import { SkillBreathsStep } from "@/components/rsvp/SkillBreathsStep";
 import { StepShell } from "@/components/rsvp/StepShell";
+import { ThanksSpectator } from "@/components/rsvp/ThanksSpectator";
+import { VibesRejected } from "@/components/rsvp/VibesRejected";
+import { VibesStep } from "@/components/rsvp/VibesStep";
+import TypeSelect from "@/components/rsvp/TypeSelect";
 import { Button } from "@/components/ui/Button";
 import { Section } from "@/components/ui/Section";
 import { Spinner } from "@/components/ui/Spinner";
@@ -31,7 +37,24 @@ export default function RsvpPage() {
           <div className="flex justify-center py-24">
             <Spinner className="h-10 w-10" />
           </div>
-        ) : step === "form" ? (
+        ) : step === "rsvp-type" ? (
+          <StepShell
+            step={step}
+            title="How will you participate?"
+            subtitle="Racing in the MarioKart tournament, or here to spectate the games?"
+          >
+            <TypeSelect />
+            <p className="mt-4 text-center text-sm text-paper/60">
+              Already signed up but can&apos;t make it?{" "}
+              <TransitionLink
+                href="/unrsvp"
+                className="font-head font-semibold text-mario-yellow underline underline-offset-4"
+              >
+                Un-RSVP
+              </TransitionLink>
+            </p>
+          </StepShell>
+        ) : step === "name-num" ? (
           <StepShell
             step={step}
             title="Join the Cup"
@@ -48,11 +71,37 @@ export default function RsvpPage() {
               </TransitionLink>
             </p>
           </StepShell>
+        ) : step === "vibes" ? (
+          <StepShell
+            step={step}
+            title="Rate your VIBES"
+            subtitle="It's important we know what you're bringing to the table."
+          >
+            <VibesStep />
+          </StepShell>
+        ) : step === "rate-skill-breaths" ? (
+          <StepShell
+            step={step}
+            title="Reported skills"
+            subtitle="Answer truthfully so we can build a competitive bracket."
+          >
+            <SkillBreathsStep />
+          </StepShell>
+        ) : step === "rejected" ? (
+          <VibesRejected />
+        ) : step === "acknowledgments" ? (
+          <StepShell
+            step={step}
+            title="Acknowledgements"
+            subtitle="Required for participation."
+          >
+            <Acknowledgments />
+          </StepShell>
         ) : step === "reaction" ? (
           <StepShell
             step={step}
             title="Skill Check"
-            subtitle="Seeding game 1 of 2 — five rounds."
+            subtitle="Seeding game 1 of 2 — easy to start, then it ramps up."
           >
             {status === "submitting" ? (
               <div className="flex flex-col items-center gap-4 py-20">
@@ -100,6 +149,8 @@ export default function RsvpPage() {
               <FlappyGame onComplete={completeFlappy} />
             )}
           </StepShell>
+        ) : step === "thanks" ? (
+          <ThanksSpectator />
         ) : (
           <SeedReveal />
         )}

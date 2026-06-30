@@ -37,9 +37,14 @@ export function SeedReveal() {
 
   return (
     <div className="flex flex-col items-center gap-6 text-center">
-      <p className="font-head text-sm font-bold tracking-[0.3em] text-ink/50 uppercase">
-        {rsvp?.name ? `Nice driving, ${rsvp.name}!` : "Nice driving!"}
-      </p>
+      <div className="flex flex-col gap-1">
+        <p className="font-head text-sm font-bold tracking-[0.3em] text-mario-green uppercase">
+          You&apos;re in — thanks for playing!
+        </p>
+        <p className="font-display text-2xl text-paper sm:text-3xl">
+          {rsvp?.name ? `Nice driving, ${rsvp.name.split(",")[0].trim()}!` : "Nice driving!"}
+        </p>
+      </div>
 
       <motion.div
         initial={{ scale: 0.4, rotate: -12, opacity: 0 }}
@@ -48,13 +53,13 @@ export function SeedReveal() {
         className="flex flex-col items-center"
       >
         <span className="font-head text-lg font-bold tracking-widest text-ink/60 uppercase">
-          You are seed
+          Your game rank
         </span>
         <span className="font-display text-8xl leading-none text-mario-red sm:text-9xl">
-          #{outcome.seed}
+          #{outcome.rank}
         </span>
         <span className="font-head font-semibold text-ink/60">
-          of {outcome.totalPlayers} racers
+          of {outcome.totalPlayers} players
         </span>
       </motion.div>
 
@@ -68,7 +73,7 @@ export function SeedReveal() {
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <TransitionLink href="/standings" className={buttonClasses("blue", "lg")}>
-          See full standings 🏆
+          Continue to standings 🏆
         </TransitionLink>
         <TransitionLink href="/info1" className={buttonClasses("outline", "lg")}>
           Event details
@@ -76,7 +81,8 @@ export function SeedReveal() {
       </div>
 
       <p className="max-w-sm text-xs text-ink/45">
-        Your seed locks in your first-round matchup. Bring your A-game (and a
+        Tournament seeds come from past tournaments — this combo score breaks
+        ties and gives new players a fair shot. Bring your A-game (and a
         designated driver) to race day.
       </p>
     </div>

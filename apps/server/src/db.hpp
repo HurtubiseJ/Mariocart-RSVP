@@ -42,6 +42,17 @@ inline crow::json::wvalue row_to_json(const pqxx::row& row) {
         ? crow::json::wvalue()
         : crow::json::wvalue(row["message"].as<std::string>());
 
+    j["vibes"] = row["vibes"].is_null() 
+        ? crow::json::wvalue()
+        : crow::json::wvalue(row["vibes"].as<int>());
+
+    j["rsvp_type"] = row["rsvp_type"].is_null()
+        ? crow::json::wvalue()
+        : crow::json::wvalue(row["rsvp_type"].as<std::string>());
+
+    j["rated_skill"] = row["rated_skill"].as<int>();
+    j["num_breaths"] = row["num_breaths"].as<int>();
+
     j["created_at"] = row["created_at"].as<std::string>();
     return j;
 }
@@ -53,8 +64,15 @@ inline crow::json::wvalue standing_to_json(const pqxx::row& row) {
     crow::json::wvalue j;
     const int rank = row["rank"].as<int>();
     j["rsvp_id"]          = row["rsvp_id"].as<int>();
+    j["rsvp_type"]        = row["rsvp_type"].is_null()
+        ? crow::json::wvalue(std::string("player"))
+        : crow::json::wvalue(row["rsvp_type"].as<std::string>());
     j["name"]             = row["name"].as<std::string>();
     j["cumulative_score"] = row["cumulative_score"].as<int>();
+    // vibes is only meaningful for spectators; players (and legacy rows) are null.
+    j["vibes"]            = row["vibes"].is_null()
+        ? crow::json::wvalue()
+        : crow::json::wvalue(row["vibes"].as<int>());
     j["rank"]             = rank;
     j["seed"]             = rank;
 

@@ -66,6 +66,10 @@ export const rsvpResponseSchema = z.object({
   name: z.string(),
   phone: z.string(),
   email: z.string().nullable().optional(),
+  rsvp_type: z.enum(["player", "spectator"]),
+  vibes: z.number().nullable().optional(),
+  num_breaths: z.number().nullable().optional(),
+  rated_skill: z.number().nullable().optional(),
   created_at: z.string(),
 });
 
@@ -86,7 +90,9 @@ export const gameBreakdownSchema = z.object({
 
 export const standingEntrySchema = z.object({
   rsvp_id: z.number(),
+  rsvp_type: z.enum(["player", "spectator"]),
   name: z.string(),
+  vibes: z.number().nullable().optional(),
   cumulative_score: z.number(),
   seed: z.number(),
   rank: z.number(),

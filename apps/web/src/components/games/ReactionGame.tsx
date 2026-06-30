@@ -17,7 +17,7 @@ export function ReactionGame({
         createGame={() => new ReactionEngine()}
         onComplete={onComplete}
         startTitle="Skill Check"
-        startHint="Tap the moment the needle is inside the red zone..."
+        startHint="Tap anywhere the moment the spinning line is inside the red zone. First couple rounds are easy — it ramps up from there."
         renderHud={(hud) => (
           <GameHud>
             <HudChip label="Round" value={`${hud.round}/${hud.totalRounds}`} />

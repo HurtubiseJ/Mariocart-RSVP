@@ -1,11 +1,23 @@
-import { cn } from "@/lib/cn";
-import type { FlowStep } from "@/state/rsvpFlow";
+"use client";
 
-const STEPS: { key: FlowStep; label: string }[] = [
-  { key: "form", label: "Sign Up" },
+import { cn } from "@/lib/cn";
+import { useRsvpFlow, type FlowStep } from "@/state/rsvpFlow";
+
+/** The visible progress steps for each participation path. */
+const SPECTATOR_STEPS: { key: FlowStep; label: string }[] = [
+  { key: "rsvp-type", label: "Participation" },
+  { key: "name-num", label: "Sign up" },
+  { key: "vibes", label: "Vibes" },
+  { key: "acknowledgments", label: "Acknowledge" },
+];
+
+const PLAYER_STEPS: { key: FlowStep; label: string }[] = [
+  { key: "rsvp-type", label: "Participation" },
+  { key: "name-num", label: "Sign up" },
+  { key: "rate-skill-breaths", label: "Skills" },
+  { key: "acknowledgments", label: "Acknowledge" },
   { key: "reaction", label: "Skill Check" },
   { key: "flappy", label: "Flappy" },
-  { key: "seed", label: "Seed" },
 ];
 
 /** Progress chrome shared by every step of the RSVP flow. */
@@ -20,29 +32,34 @@ export function StepShell({
   subtitle?: string;
   children: React.ReactNode;
 }) {
-  const activeIdx = STEPS.findIndex((s) => s.key === step);
+  const rsvpType = useRsvpFlow((s) => s.rsvp_type);
+  const steps = rsvpType === "spectator" ? SPECTATOR_STEPS : PLAYER_STEPS;
+  const activeIdx = Math.max(
+    0,
+    steps.findIndex((s) => s.key === step),
+  );
 
   return (
     <div className="flex flex-col gap-6">
       <ol className="flex items-center justify-center">
-        {STEPS.map((s, i) => (
+        {steps.map((s, idx) => (
           <li key={s.key} className="flex items-center">
             <div
               className={cn(
                 "flex h-8 w-8 items-center justify-center rounded-full border-2 border-ink font-head text-sm font-bold",
-                i < activeIdx && "bg-mario-green text-paper",
-                i === activeIdx && "bg-mario-yellow text-ink",
-                i > activeIdx && "bg-paper text-ink/50",
+                idx < activeIdx && "bg-mario-green text-paper",
+                idx === activeIdx && "bg-mario-yellow text-ink",
+                idx > activeIdx && "bg-paper text-ink/50",
               )}
-              aria-current={i === activeIdx ? "step" : undefined}
+              aria-current={idx === activeIdx ? "step" : undefined}
             >
-              {i < activeIdx ? "✓" : i + 1}
+              {idx < activeIdx ? "✓" : idx + 1}
             </div>
-            {i < STEPS.length - 1 && (
+            {idx < steps.length - 1 && (
               <span
                 className={cn(
                   "h-1 w-5 sm:w-8",
-                  i < activeIdx ? "bg-mario-green" : "bg-silver",
+                  idx < activeIdx ? "bg-mario-green" : "bg-silver",
                 )}
               />
             )}

@@ -88,6 +88,12 @@ const realClient: ApiClient = {
       body: JSON.stringify({
         name: body.name,
         phone: body.phone,
+        rsvp_type: body.rsvp_type,
+        // The backend stores these as ints; unused-for-this-type fields use
+        // sentinels (vibes 0 for players, -1 skill/breaths for spectators).
+        vibes: body.vibes ?? 0,
+        rated_skill: body.rated_skill ?? -1,
+        num_breaths: body.num_breaths ?? -1,
         email: body.email ?? null,
       }),
     });
@@ -96,6 +102,10 @@ const realClient: ApiClient = {
       id: p.id,
       name: p.name,
       phone: p.phone,
+      rsvp_type: p.rsvp_type,
+      vibes: p.vibes ?? null,
+      rated_skill: p.rated_skill ?? null,
+      num_breaths: p.num_breaths ?? null,
       email: p.email ?? null,
       createdAt: p.created_at,
     };
@@ -140,7 +150,9 @@ const realClient: ApiClient = {
     const raw = await request<unknown>("/api/standings");
     return standingsResponseSchema.parse(raw).map((e) => ({
       rsvpId: e.rsvp_id,
+      rsvp_type: e.rsvp_type,
       name: e.name,
+      vibes: e.vibes ?? null,
       cumulativeScore: e.cumulative_score,
       seed: e.seed,
       rank: e.rank,

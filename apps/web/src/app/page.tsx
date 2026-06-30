@@ -1,23 +1,19 @@
 import { HeroSection } from "@/components/hero/HeroSection";
-import {
-  InfoSection,
-  type InfoSectionProps,
-} from "@/components/hero/InfoSection";
-import { ScrollBackground } from "@/components/hero/ScrollBackground";
+import { type InfoSectionProps } from "@/components/hero/InfoSection";
 import { SlideDateTimeSection } from "@/components/hero/SlideDateTimeSection";
 
 const SECTIONS: Omit<InfoSectionProps, "index">[] = [
   {
     title: "RSVP",
     blurb:
-      "Lock in your spot, then earn your tournament seed in two minigames.",
+      "Lock in your spot as a player or spectator — players battle two minigames.",
     href: "/rsvp",
     cta: "Start",
     accent: "red",
   },
   {
     title: "STANDINGS",
-    blurb: "See where every racer landed after the seeding games.",
+    blurb: "See where every racer landed on the combo-score game standings.",
     href: "/standings",
     cta: "View",
     accent: "blue",
@@ -39,7 +35,7 @@ const SECTIONS: Omit<InfoSectionProps, "index">[] = [
   },
   {
     title: "EVENT INFO",
-    blurb: "When and where it all goes down. Get the date, time, and place.",
+    blurb: "July 25 at Luke's casa. Get the time, place, and parking.",
     href: "/info1",
     cta: "Details",
     accent: "red",

@@ -41,7 +41,7 @@ int main() {
             pqxx::work tx{conn};
             pqxx::result rows = tx.exec(
                 "SELECT id, name, email, phone, attending, guests, "
-                "favorite_character, message, created_at "
+                "favorite_character, message, vibes, rsvp_type, rated_skill, num_breaths, created_at "
                 "FROM rsvps ORDER BY created_at DESC");
             tx.commit();
 
@@ -59,8 +59,8 @@ int main() {
             pqxx::connection conn{dsn};
             pqxx::work tx{conn};
             pqxx::result rows = tx.exec_params(
-                "SELECT id, name, email, phone, attending, guests, "
-                "favorite_character, message, created_at "
+                "SELECT id, name, email, phone, attending, guests, vibes, "
+                "favorite_character, message, rsvp_type, rated_skill, num_breaths, created_at "
                 "FROM rsvps WHERE id = $1",
                 id);
             tx.commit();
@@ -85,8 +85,16 @@ int main() {
             return crow::response{400, "name and phone must be strings"};
         }
 
+        if (in["rsvp_type"].t() != crow::json::type::String) {
+            return crow::response{400, "Type: (rsvp_type -> player|spectator) is required."};
+        }
+
         const std::string name  = std::string(in["name"].s());
         const std::string phone = std::string(in["phone"].s());
+        const std::string p_type = std::string(in["rsvp_type"].s());
+        const int vibes = in["vibes"].i();
+        const int num_b = in["num_breaths"].i();
+        const int rated_skill = in["rated_skill"].i();
 
         // email is optional: the frontend sends JSON null when omitted.
         std::optional<std::string> email;
@@ -114,11 +122,11 @@ int main() {
             pqxx::work tx{conn};
             pqxx::row row = tx.exec_params1(
                 "INSERT INTO rsvps "
-                "(name, email, phone, attending, guests, favorite_character, message) "
-                "VALUES ($1, $2, $3, $4, $5, $6, $7) "
+                "(name, email, phone, attending, guests, favorite_character, message, vibes, rsvp_type, num_breaths, rated_skill) "
+                "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) "
                 "RETURNING id, name, email, phone, attending, guests, "
-                "favorite_character, message, created_at",
-                name, email, phone, attending, guests, favorite_character, message);
+                "favorite_character, message, vibes, rsvp_type, num_breaths, rated_skill, created_at",
+                name, email, phone, attending, guests, favorite_character, message, vibes, p_type, num_b, rated_skill);
             tx.commit();
 
             crow::response res{db::row_to_json(row)};
@@ -259,20 +267,23 @@ int main() {
     });
 
     // GET /api/standings — leaderboard with each player's per-game breakdown.
+    // LEFT JOIN from rsvps so spectators (who never submit games and thus have no
+    // standings row) still appear; the frontend lists them separately with no
+    // score. rsvp_type/vibes live on rsvps, not standings.
     CROW_ROUTE(app, "/api/standings").methods("GET"_method)([&dsn]() {
         try {
             pqxx::connection conn{dsn};
             pqxx::work tx{conn};
             pqxx::result r = tx.exec(
-                "SELECT s.rsvp AS rsvp_id, r.name, "
-                "       s.total_score AS cumulative_score, "
-                "       ROW_NUMBER() OVER (ORDER BY s.total_score DESC) AS rank, "
+                "SELECT r.id AS rsvp_id, r.name, r.rsvp_type, r.vibes, "
+                "       COALESCE(s.total_score, 0) AS cumulative_score, "
+                "       ROW_NUMBER() OVER (ORDER BY COALESCE(s.total_score, 0) DESC) AS rank, "
                 "       COALESCE((SELECT json_agg(json_build_object("
                 "           'game', g.game, 'trial', g.trial, "
                 "           'score', g.score, 'details', g.details) ORDER BY g.game) "
-                "         FROM game_scores g WHERE g.rsvp = s.rsvp), '[]') AS games "
-                "FROM standings s JOIN rsvps r ON r.id = s.rsvp "
-                "ORDER BY s.total_score DESC;");
+                "         FROM game_scores g WHERE g.rsvp = r.id), '[]') AS games "
+                "FROM rsvps r LEFT JOIN standings s ON s.rsvp = r.id "
+                "ORDER BY cumulative_score DESC;");
             tx.commit();
 
             std::vector<crow::json::wvalue> items;

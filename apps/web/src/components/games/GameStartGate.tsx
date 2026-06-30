@@ -1,11 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useEffect, useRef } from "react";
+import { Button } from "@/components/ui/Button";
 
 /**
- * Pre-game overlay. Auto-starts after a 2s "get ready" beat, which also warms up
- * the render loop (and any audio) before the game runs — important on mobile.
+ * Pre-game overlay. The player reads the rules, then taps to start — a 3-2-1
+ * countdown (driven by GameCanvas) plays over the live game scene before logic
+ * actually begins, so nobody gets caught off guard.
  */
 export function GameStartGate({
   title,
@@ -16,17 +17,6 @@ export function GameStartGate({
   hint: string;
   onStart: () => void;
 }) {
-  const started = useRef(false);
-
-  useEffect(() => {
-    const t = setTimeout(() => {
-      if (started.current) return;
-      started.current = true;
-      onStart();
-    }, 2000);
-    return () => clearTimeout(t);
-  }, [onStart]);
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -35,10 +25,9 @@ export function GameStartGate({
     >
       <h3 className="font-display text-3xl tracking-wide text-paper">{title}</h3>
       <p className="max-w-xs text-paper/80">{hint}</p>
-      <h4 className="font-display text-2xl tracking-wide text-mario-red mt-2">GET READY... {}</h4>
-      {/* <Button variant="yellow" size="lg" onClick={onStart}>
+      <Button variant="yellow" size="lg" className="mt-2" onClick={onStart}>
         Tap to start
-      </Button> */}
+      </Button>
     </motion.div>
   );
 }

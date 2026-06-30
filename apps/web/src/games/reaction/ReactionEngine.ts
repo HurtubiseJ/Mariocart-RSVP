@@ -61,14 +61,20 @@ export class ReactionEngine implements Game<ReactionScore> {
 
   // Place zones ahead of the start angle within the single sweep, with a run-up
   // so the player has time to react and (for two zones) clear separation.
+  //
+  // The run-up must clear the zone's half-width plus a fixed reaction buffer,
+  // otherwise a wide zone's leading edge can sit right on the spinner's starting
+  // position (impossible to time). leadIn is measured to the zone *centre*.
   private makeZones(count: number): Zone[] {
-    const leadIn = 0.6; // radians of run-up before the first possible zone
+    const REACTION_BUFFER = 1.0; // radians of clear space before the zone edge
+    const leadIn = this.halfWidth + REACTION_BUFFER;
     if (count === 1) {
-      const offset = leadIn + Math.random() * (TAU - leadIn - 0.3);
+      const range = Math.max(0.2, TAU - leadIn - this.halfWidth - 0.3);
+      const offset = leadIn + Math.random() * range;
       return [{ center: norm(START_ANGLE + offset), consumed: false, hit: false }];
     }
-    const o1 = leadIn + Math.random() * (Math.PI - leadIn);
-    const o2 = o1 + 0.8 + Math.random() * (TAU - o1 - 0.8 - 0.2);
+    const o1 = leadIn + Math.random() * Math.max(0.2, Math.PI - leadIn);
+    const o2 = o1 + 0.8 + Math.random() * Math.max(0.2, TAU - o1 - 0.8 - this.halfWidth - 0.2);
     return [
       { center: norm(START_ANGLE + o1), consumed: false, hit: false },
       { center: norm(START_ANGLE + o2), consumed: false, hit: false },

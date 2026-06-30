@@ -6,20 +6,33 @@
  */
 
 // --- RSVP -----------------------------------------------------------------
+export type RSVPType = "player" | "spectator";
 
 export interface RsvpCreateRequest {
   name: string;
   phone: string;
+  rsvp_type: RSVPType;
+  /** Players only (1-10). Spectators leave null. */
+  rated_skill?: number | null;
+  /** Spectators only (1-10). Players leave null. */
+  vibes?: number | null;
+  /** Players only: breaths to chug a beer (1-3, or 0 = bad at drinking). */
+  num_breaths?: number | null;
   /** Optional — collected but not required (phone is the player identity). */
   email?: string;
 }
 
+
 export interface Rsvp {
-  id: number;
+  id: number | undefined; // Set but submit response
   name: string;
   phone: string;
-  email: string | null;
-  createdAt: string;
+  rsvp_type: RSVPType;
+  rated_skill: number | null;
+  vibes: number | null;
+  num_breaths: number | null;
+  email: string | null | undefined;
+  createdAt: string | undefined;
 }
 
 // --- Scores ---------------------------------------------------------------
@@ -91,10 +104,13 @@ export interface ScoreSubmitResponse {
 
 export interface StandingEntry {
   rsvpId: number;
+  rsvp_type: RSVPType;
   name: string;
   cumulativeScore: number;
   seed: number;
   rank: number;
+  /** Spectators rate their vibes (1-10); players have none. */
+  vibes: number | null;
   /** Per-game breakdown, when the backend provides it (absent for seeded demo rows). */
   games?: GameBreakdown[];
 }

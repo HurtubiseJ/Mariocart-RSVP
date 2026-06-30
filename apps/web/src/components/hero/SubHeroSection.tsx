@@ -55,7 +55,7 @@ export function SubHeroSection() {
           transition={{ delay: 1.0, duration: 0.5 }}
           className="font-head text-base font-semibold tracking-[0.25em] text-paper/80 uppercase sm:text-lg"
         >
-          2026 Annual Tournament
+          2026 Annual Tournament · July 25
         </motion.p>
 
         <motion.div

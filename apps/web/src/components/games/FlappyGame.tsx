@@ -12,8 +12,8 @@ import { GameHud, HudChip } from "./GameHud";
 const RUNS = 2;
 
 /**
- * Hosts two Flappy runs and keeps the best. After run 1 it shows a between-run
- * card; after run 2 it reports the combined FlappyScore (best of two).
+ * Hosts two Flappy runs and keeps the best. After the first run it shows a
+ * between-run card; after the last it reports the combined FlappyScore.
  */
 export function FlappyGame({
   onComplete,
@@ -41,6 +41,8 @@ export function FlappyGame({
   };
 
   const runNumber = Math.min(scores.length + 1, RUNS);
+  const lastGates = scores[scores.length - 1] ?? 0;
+  const bestSoFar = scores.length ? Math.max(...scores) : 0;
 
   return (
     <div className="relative h-[68dvh] max-h-[640px] w-full overflow-hidden rounded-pop border-[3px] border-ink shadow-[0_8px_0_0_var(--color-ink)]">
@@ -65,12 +67,15 @@ export function FlappyGame({
           className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-ink/85 px-6 text-center backdrop-blur-sm"
         >
           <p className="font-head text-sm font-bold tracking-widest text-mario-yellow uppercase">
-            Run 1 complete
+            Run {scores.length} of {RUNS} complete
           </p>
-          <p className="font-display text-5xl text-paper">{scores[0]} 🍺</p>
-          <p className="text-paper/70">gates cleared — one more run, best score counts.</p>
+          <p className="font-display text-5xl text-paper">{lastGates} 🍺</p>
+          <p className="text-paper/70">
+            gates cleared — best so far: {bestSoFar} 🍺. {RUNS - scores.length} run
+            {RUNS - scores.length === 1 ? "" : "s"} left.
+          </p>
           <Button variant="yellow" size="lg" onClick={startNext}>
-            Start Run 2
+            Start run {scores.length + 1}
           </Button>
         </motion.div>
       )}

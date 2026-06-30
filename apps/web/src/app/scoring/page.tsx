@@ -8,24 +8,24 @@ export const metadata: Metadata = { title: "Scoring — Beerio Kart World Cup" }
 // Built straight from lib/scoring.ts so the page can't drift from the real maths.
 const SECTIONS = [
   {
-    title: "Two seeding games",
-    body: "Your tournament seed comes from two minigames played right after you RSVP: the Skill Check and Beerio Flappy. Each produces a raw score; those are weighted and added together into one cumulative total.",
+    title: "Two ranking games",
+    body: "Right after you RSVP you play two minigames: the Skill Check and Beerio Flappy. Each produces a raw score; those are weighted and added together into one cumulative combo score.",
   },
   {
     title: "Skill Check (reaction)",
-    body: `Each round is a single 360° sweep — you get one pass to tap inside each red zone. A hit is worth ${SCORING.HIT_VALUE} points; every degree your taps land away from a zone centre costs ${SCORING.MISS_PENALTY}. Any zone you don't tap before the sweep finishes counts as a full miss. Raw score = hits × ${SCORING.HIT_VALUE} − missed° × ${SCORING.MISS_PENALTY} (never below 0).`,
+    body: `Each round is a single 360° sweep — you get one pass to tap inside each red zone. The first couple of rounds are easy to learn on; it ramps up after that. A hit is worth ${SCORING.HIT_VALUE} points; every degree your taps land away from a zone centre costs ${SCORING.MISS_PENALTY}. Any zone you don't tap before the sweep finishes counts as a full miss. Raw score = hits × ${SCORING.HIT_VALUE} − missed° × ${SCORING.MISS_PENALTY} (never below 0).`,
   },
   {
     title: "Beerio Flappy",
-    body: `You get two runs; each gate cleared is worth ${SCORING.GATE_VALUE} points. Your best run counts at full weight (×${SCORING.HIGHEST_SCORE_WEIGHT}) and your other run at half (×${SCORING.LOWEST_SCORE_WEIGHT}). Raw score = best gates × ${SCORING.GATE_VALUE} + lower gates × ${SCORING.GATE_VALUE} × ${SCORING.LOWEST_SCORE_WEIGHT}.`,
+    body: `You get two runs; each gate cleared is worth ${SCORING.GATE_VALUE} points. Your best run counts at full weight (×${SCORING.HIGHEST_SCORE_WEIGHT}) plus a half-weight (×${SCORING.LOWEST_SCORE_WEIGHT}) bonus from your other run. Raw score = best gates × ${SCORING.GATE_VALUE} + lowest gates × ${SCORING.GATE_VALUE} × ${SCORING.LOWEST_SCORE_WEIGHT}.`,
   },
   {
-    title: "Cumulative score",
-    body: `Each game contributes its raw score times its weight — Skill Check ×${SCORING.W_REACTION} and Flappy ×${SCORING.W_FLAPPY}. Your cumulative score is simply the sum of those two weighted contributions, and that's exactly the total shown on the standings.`,
+    title: "Combo score",
+    body: `Each game contributes its raw score times its weight — Skill Check ×${SCORING.W_REACTION} and Flappy ×${SCORING.W_FLAPPY}. Your combo score is simply the sum of those two weighted contributions, and that's exactly the total shown on the game standings.`,
   },
   {
-    title: "Seeds",
-    body: "Everyone is ranked by cumulative score, highest first. The top score is seed #1, and your seed sets your first-round matchup in the bracket.",
+    title: "What the score is for",
+    body: "Your combo score does NOT set your tournament seed — seeds come from past tournament results. The combo score is used to break ties and to give new players (with no tournament history) fair placement instead of defaulting to the bottom.",
   },
 ];
 
@@ -33,7 +33,7 @@ export default function ScoringPage() {
   return (
     <PageShell
       title="HOW SCORES WORK"
-      subtitle="Full transparency on how your seed is calculated."
+      subtitle="Full transparency on how your combo score is calculated."
     >
       <ol className="flex flex-col gap-4">
         {SECTIONS.map((s, i) => (

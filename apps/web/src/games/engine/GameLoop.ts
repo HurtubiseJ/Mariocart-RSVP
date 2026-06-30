@@ -23,12 +23,23 @@ export class GameLoop<TResult> {
   private elapsed = 0;
   private running = false;
   private over = false;
+  // When true the loop keeps rendering but does not advance game logic — used to
+  // show the (static) game scene behind the pre-game countdown.
+  private logicPaused = false;
 
   constructor(
     private readonly game: Game<TResult>,
     private readonly canvas: Canvas2D,
     private readonly cb: LoopCallbacks<TResult>,
   ) {}
+
+  /** Freeze/unfreeze logic while still rendering (e.g. during a countdown). */
+  setLogicPaused(paused: boolean) {
+    this.logicPaused = paused;
+    // Drop any accumulated time so unpausing doesn't fast-forward the sim.
+    this.acc = 0;
+    this.last = performance.now();
+  }
 
   start() {
     if (this.running || this.over) return;
@@ -45,15 +56,17 @@ export class GameLoop<TResult> {
     let delta = now - this.last;
     this.last = now;
     if (delta > GameLoop.MAX_FRAME) delta = GameLoop.MAX_FRAME;
-    this.acc += delta;
 
     const ctx = this.canvas.context;
-    while (this.acc >= GameLoop.FIXED && !this.over) {
-      this.elapsed += GameLoop.FIXED;
-      ctx.t = this.elapsed;
-      this.game.update(GameLoop.FIXED, ctx);
-      this.acc -= GameLoop.FIXED;
-      if (this.game.isOver()) this.over = true;
+    if (!this.logicPaused) {
+      this.acc += delta;
+      while (this.acc >= GameLoop.FIXED && !this.over) {
+        this.elapsed += GameLoop.FIXED;
+        ctx.t = this.elapsed;
+        this.game.update(GameLoop.FIXED, ctx);
+        this.acc -= GameLoop.FIXED;
+        if (this.game.isOver()) this.over = true;
+      }
     }
 
     ctx.t = this.elapsed;
