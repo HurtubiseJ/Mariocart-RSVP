@@ -90,7 +90,8 @@ int main() {
         }
 
         const std::string name  = std::string(in["name"].s());
-        const std::string phone = std::string(in["phone"].s());
+        // Canonicalise the phone (strip spaces/()/+/-) before it hits the DB.
+        const std::string phone = db::normalize_phone(std::string(in["phone"].s()));
         const std::string p_type = std::string(in["rsvp_type"].s());
         const int vibes = in["vibes"].i();
         const int num_b = in["num_breaths"].i();
@@ -246,7 +247,8 @@ int main() {
             in["reason"].t() != crow::json::type::String)
             return crow::response{400, "phone and reason must be strings"};
 
-        const std::string phone  = std::string(in["phone"].s());
+        // Normalise the same way as on insert so the lookup matches stored rows.
+        const std::string phone  = db::normalize_phone(std::string(in["phone"].s()));
         const std::string reason = std::string(in["reason"].s());
         if (reason.size() < 20)
             return crow::response{400, "please tell us a bit more about why"};

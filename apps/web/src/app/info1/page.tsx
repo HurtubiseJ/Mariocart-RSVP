@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import { PageShell } from "@/components/layout/PageShell";
-import { TransitionLink } from "@/components/transition/TransitionLink";
-import { buttonClasses } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { EVENT } from "@/lib/event";
 
@@ -35,22 +33,6 @@ export default function InfoPage() {
             </Card>
           ))}
         </div>
-
-        <Card className="overflow-hidden">
-          {/* Map placeholder */}
-          <div className="flex h-44 items-center justify-center bg-asphalt text-paper/50">
-            <span className="font-head text-sm">Map coming soon</span>
-          </div>
-          <div className="flex flex-col items-center gap-3 p-5 text-center">
-            <p className="text-ink/70">
-              {EVENT.parking}. Please don&apos;t drink and drive — line up a
-              designated driver.
-            </p>
-            <TransitionLink href="/rsvp" className={buttonClasses("green", "md")}>
-              RSVP now 🏁
-            </TransitionLink>
-          </div>
-        </Card>
       </div>
     </PageShell>
   );

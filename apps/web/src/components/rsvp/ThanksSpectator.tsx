@@ -45,8 +45,7 @@ export function ThanksSpectator() {
           {rsvp?.name ? `You're in, ${rsvp.name.split(",")[0]}!` : "You're in!"}
         </h1>
         <p className="max-w-sm text-paper/80">
-          Thanks for RSVPing as a spectator. Spectators skip the seeding games —
-          you just bring the energy. See you {EVENT.dateShort} at {EVENT.place}.
+          Thanks for RSVPing as a spectator. See you {EVENT.dateShort} at {EVENT.place}.
         </p>
       </div>
 
@@ -59,11 +58,11 @@ export function ThanksSpectator() {
       </Card>
 
       <div className="flex flex-col gap-3 sm:flex-row">
-        <TransitionLink href="/info1" className={buttonClasses("yellow", "lg")}>
-          📍 Event details
-        </TransitionLink>
         <TransitionLink href="/standings" className={buttonClasses("outline", "lg")}>
           See the standings 🏆
+        </TransitionLink>
+        <TransitionLink href="/info1" className={buttonClasses("yellow", "lg")}>
+          📍 Event details
         </TransitionLink>
       </div>
     </div>

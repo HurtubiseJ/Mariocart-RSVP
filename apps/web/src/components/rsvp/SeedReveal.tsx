@@ -7,6 +7,7 @@ import { TransitionLink } from "@/components/transition/TransitionLink";
 import { buttonClasses } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import { EVENT } from "@/lib/event";
 import { useRsvpFlow } from "@/state/rsvpFlow";
 
 const MARIO_COLORS = ["#e52521", "#049cd8", "#fbd000", "#43b047"];
@@ -71,12 +72,24 @@ export function SeedReveal() {
         </div>
       </Card>
 
+      <p className="max-w-sm text-paper/80">
+        Thanks for RSVPing and racing! See you {EVENT.dateShort} at {EVENT.place}.
+      </p>
+
+      <Card className="w-full max-w-sm p-5 text-left">
+        <Detail label="When" value={EVENT.date} />
+        <Detail label="Arrival Time" value={EVENT.arrivalTime} />
+        <Detail label="Tournament Start" value={EVENT.tournamentStart} />
+        <Detail label="Where" value={EVENT.place} />
+        <Detail label="Parking" value={EVENT.parking} />
+      </Card>
+
       <div className="flex flex-col gap-3 sm:flex-row">
-        <TransitionLink href="/info1" className={buttonClasses("yellow", "lg")}>
-          📍 Event details
-        </TransitionLink>
         <TransitionLink href="/standings" className={buttonClasses("outline", "lg")}>
           Continue to standings 🏆
+        </TransitionLink>
+        <TransitionLink href="/info1" className={buttonClasses("yellow", "lg")}>
+          📍 Event details
         </TransitionLink>
       </div>
 
@@ -108,6 +121,17 @@ function Stat({
       >
         {value}
       </div>
+    </div>
+  );
+}
+
+function Detail({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between gap-4 border-b-2 border-silver/60 py-2 last:border-0">
+      <span className="font-head text-xs font-bold tracking-wider text-ink/50 uppercase">
+        {label}
+      </span>
+      <span className="font-head text-sm font-semibold text-ink">{value}</span>
     </div>
   );
 }

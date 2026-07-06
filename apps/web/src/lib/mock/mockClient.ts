@@ -10,6 +10,7 @@ import type {
   StandingsResponse,
   UnrsvpRequest,
 } from "../api.types";
+import { normalizePhone } from "../phone";
 import { computeSeed } from "../seed";
 import { BASE_MAX_ID, BASE_PLAYERS, type MockPlayer } from "./mockData";
 
@@ -104,7 +105,7 @@ export const mockClient: ApiClient = {
     const rsvp: Rsvp = {
       id: nextId(rsvps),
       name: body.name,
-      phone: body.phone,
+      phone: normalizePhone(body.phone),
       rsvp_type: body.rsvp_type,
       vibes: body.vibes ?? null,
       rated_skill: body.rated_skill ?? null,
@@ -199,9 +200,10 @@ export const mockClient: ApiClient = {
 
   async unrsvp(body: UnrsvpRequest): Promise<boolean> {
     await delay();
-    const digits = (v: string) => v.replace(/\D/g, "");
     const rsvps = readJSON<Rsvp[]>(RSVP_KEY, []);
-    const match = rsvps.find((r) => digits(r.phone) === digits(body.phone));
+    const match = rsvps.find(
+      (r) => normalizePhone(r.phone) === normalizePhone(body.phone),
+    );
     if (!match) throw new Error("No RSVP found for that phone");
 
     writeJSON(

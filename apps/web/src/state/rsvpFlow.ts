@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { api } from "@/lib/api";
 import type { FlappyScore, GameSubmitRequest, ReactionScore, Rsvp, RSVPType } from "@/lib/api.types";
+import { normalizePhone } from "@/lib/phone";
 import {
   cumulativeScore,
   weightedFlappyScore,
@@ -189,7 +190,8 @@ export const useRsvpFlow = create<RsvpFlowState>()(
           const rsvp: Rsvp = {
             id: undefined,
             name: name.trim(),
-            phone: phone.trim(),
+            // Canonicalise before it's stored/uploaded (strip spaces/()/+/-).
+            phone: normalizePhone(phone),
             email: undefined,
             rsvp_type: type,
             rated_skill: null,

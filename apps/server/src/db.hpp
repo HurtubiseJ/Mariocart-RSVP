@@ -22,6 +22,19 @@ inline std::string connection_string() {
     return env_or("DATABASE_URL", "postgresql://localhost:5432/mariokart_rsvp");
 }
 
+// Strip spaces, parentheses, plus, and hyphens so phone numbers are stored and
+// matched in one canonical form (e.g. "+1 (555) 123-4567" -> "15551234567").
+inline std::string normalize_phone(const std::string& raw) {
+    std::string out;
+    out.reserve(raw.size());
+    for (char c : raw) {
+        if (c == ' ' || c == '\t' || c == '(' || c == ')' || c == '+' || c == '-')
+            continue;
+        out.push_back(c);
+    }
+    return out;
+}
+
 // Convert one row of the rsvps table into a JSON object for the API response.
 inline crow::json::wvalue row_to_json(const pqxx::row& row) {
     crow::json::wvalue j;
