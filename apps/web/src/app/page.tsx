@@ -35,7 +35,7 @@ const SECTIONS: Omit<InfoSectionProps, "index">[] = [
   },
   {
     title: "EVENT INFO",
-    blurb: "July 25 at Luke's casa. Get the time, place, and parking.",
+    blurb: "Aug 22 at Luke's casa. Get the time, place, and parking.",
     href: "/info1",
     cta: "Details",
     accent: "red",

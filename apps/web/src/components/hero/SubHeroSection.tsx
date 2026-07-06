@@ -47,6 +47,16 @@ export function SubHeroSection() {
           <KartSprite alt="Mario driving a kart while holding a beer" />
         </motion.div>
 
+        <motion.span
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05, duration: 0.5 }}
+          className="title-letter font-display text-2xl sm:text-4xl"
+          style={{ color: "var(--color-mario-yellow)" }}
+        >
+          You are invited!
+        </motion.span>
+
         <HeroTitle text="BEERIO KART WORLD CUP" />
 
         <motion.p
@@ -55,7 +65,7 @@ export function SubHeroSection() {
           transition={{ delay: 1.0, duration: 0.5 }}
           className="font-head text-base font-semibold tracking-[0.25em] text-paper/80 uppercase sm:text-lg"
         >
-          2026 Annual Tournament · July 25
+          2026 Annual Tournament · Aug 22
         </motion.p>
 
         <motion.div

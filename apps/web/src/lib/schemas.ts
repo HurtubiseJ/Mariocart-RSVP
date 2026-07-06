@@ -70,6 +70,7 @@ export const rsvpResponseSchema = z.object({
   vibes: z.number().nullable().optional(),
   num_breaths: z.number().nullable().optional(),
   rated_skill: z.number().nullable().optional(),
+  ride_home: z.string().nullable().optional(),
   created_at: z.string(),
 });
 

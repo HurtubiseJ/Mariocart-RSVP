@@ -115,6 +115,13 @@ int main() {
             message = std::string(in["message"].s());
         }
 
+        // ride_home is optional: players send how they plan to get home,
+        // spectators omit it (stored NULL).
+        std::optional<std::string> ride_home;
+        if (in.has("ride_home") && in["ride_home"].t() == crow::json::type::String) {
+            ride_home = std::string(in["ride_home"].s());
+        }
+
         std::optional<std::string> created_at;
 
         try {
@@ -122,11 +129,11 @@ int main() {
             pqxx::work tx{conn};
             pqxx::row row = tx.exec_params1(
                 "INSERT INTO rsvps "
-                "(name, email, phone, attending, guests, favorite_character, message, vibes, rsvp_type, num_breaths, rated_skill) "
-                "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) "
+                "(name, email, phone, attending, guests, favorite_character, message, vibes, rsvp_type, num_breaths, rated_skill, ride_home) "
+                "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) "
                 "RETURNING id, name, email, phone, attending, guests, "
                 "favorite_character, message, vibes, rsvp_type, num_breaths, rated_skill, created_at",
-                name, email, phone, attending, guests, favorite_character, message, vibes, p_type, num_b, rated_skill);
+                name, email, phone, attending, guests, favorite_character, message, vibes, p_type, num_b, rated_skill, ride_home);
             tx.commit();
 
             crow::response res{db::row_to_json(row)};

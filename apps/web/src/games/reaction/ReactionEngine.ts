@@ -86,10 +86,14 @@ export class ReactionEngine implements Game<ReactionScore> {
     if (this.over) return;
 
     const delta = (this.speed * dt) / 1000;
-    this.angle = (this.angle + delta) % TAU;
 
     if (this.roundDone) {
-      // Brief hold (sweep keeps turning for continuity) before the next round.
+      // Brief hold before the next round. Between rounds the sweep keeps turning
+      // for continuity, but after the final round the needle is parked at the
+      // start position (finishRound snapped it there) so it comes to rest at the
+      // top instead of drifting on for the length of the cooldown.
+      const isFinalRound = this.roundIdx + 1 >= TOTAL_ROUNDS;
+      if (!isFinalRound) this.angle = (this.angle + delta) % TAU;
       this.cooldown -= dt;
       if (this.cooldown <= 0) {
         const next = this.roundIdx + 1;
@@ -99,6 +103,7 @@ export class ReactionEngine implements Game<ReactionScore> {
       return;
     }
 
+    this.angle = (this.angle + delta) % TAU;
     this.rotation += delta;
     if (this.rotation >= TAU) this.finishRound();
   }
@@ -114,6 +119,9 @@ export class ReactionEngine implements Game<ReactionScore> {
     }
     this.roundDone = true;
     this.cooldown = COOLDOWN_MS;
+    // The last round has no next sweep, so pin the needle to the start position;
+    // otherwise the discrete-step overshoot past TAU would leave it just off top.
+    if (this.roundIdx + 1 >= TOTAL_ROUNDS) this.angle = START_ANGLE;
   }
 
   onPointerDown(_p: PointerSample): void {

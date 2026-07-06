@@ -72,11 +72,11 @@ export function SeedReveal() {
       </Card>
 
       <div className="flex flex-col gap-3 sm:flex-row">
-        <TransitionLink href="/standings" className={buttonClasses("blue", "lg")}>
-          Continue to standings 🏆
+        <TransitionLink href="/info1" className={buttonClasses("yellow", "lg")}>
+          📍 Event details
         </TransitionLink>
-        <TransitionLink href="/info1" className={buttonClasses("outline", "lg")}>
-          Event details
+        <TransitionLink href="/standings" className={buttonClasses("outline", "lg")}>
+          Continue to standings 🏆
         </TransitionLink>
       </div>
 

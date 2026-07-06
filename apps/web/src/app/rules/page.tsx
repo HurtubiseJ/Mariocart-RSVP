@@ -87,7 +87,7 @@ const FORMAT = [
 export default function RulesPage() {
   return (
     <div className="flex flex-col">
-        <PageShell title="RULES" subtitle="The house rules." className="-mb-24">
+        <PageShell title="RULES" subtitle="The house rules." fill={false}>
             <ol className="flex flex-col gap-4">
                 {RULES.map((r) => (
                 <li key={r.n}>
@@ -104,7 +104,7 @@ export default function RulesPage() {
                 ))}
             </ol>
         </PageShell>
-        <PageShell title="FORMAT" subtitle="The play by play proceedings" className="-mb-120">
+        <PageShell title="FORMAT" subtitle="The play by play proceedings" fill={false}>
             <ol className="flex flex-col gap-4">
                 {FORMAT.map((r) => (
                 <li key={r.n}>
@@ -121,7 +121,7 @@ export default function RulesPage() {
                 ))}
             </ol>
         </PageShell>
-        <PageShell title="SEEDS" subtitle="The creation of the bracket and your placement." className="-pb-12">
+        <PageShell title="SEEDS" subtitle="The creation of the bracket and your placement." fill={false}>
             <ol className="flex flex-col gap-4">
                 {SEEDING.map((r) => (
                 <li key={r.n}>

@@ -94,6 +94,7 @@ const realClient: ApiClient = {
         vibes: body.vibes ?? 0,
         rated_skill: body.rated_skill ?? -1,
         num_breaths: body.num_breaths ?? -1,
+        ride_home: body.ride_home ?? null,
         email: body.email ?? null,
       }),
     });
@@ -106,6 +107,7 @@ const realClient: ApiClient = {
       vibes: p.vibes ?? null,
       rated_skill: p.rated_skill ?? null,
       num_breaths: p.num_breaths ?? null,
+      ride_home: p.ride_home ?? null,
       email: p.email ?? null,
       createdAt: p.created_at,
     };

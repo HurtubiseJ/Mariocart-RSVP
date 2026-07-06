@@ -18,6 +18,8 @@ export interface RsvpCreateRequest {
   vibes?: number | null;
   /** Players only: breaths to chug a beer (1-3, or 0 = bad at drinking). */
   num_breaths?: number | null;
+  /** Players only: how they plan to get home ("have_driver"|"staying_lukes"|"unsure"). */
+  ride_home?: string | null;
   /** Optional — collected but not required (phone is the player identity). */
   email?: string;
 }
@@ -31,6 +33,7 @@ export interface Rsvp {
   rated_skill: number | null;
   vibes: number | null;
   num_breaths: number | null;
+  ride_home: string | null;
   email: string | null | undefined;
   createdAt: string | undefined;
 }

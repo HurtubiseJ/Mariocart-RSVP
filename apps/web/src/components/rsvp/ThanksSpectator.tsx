@@ -52,17 +52,18 @@ export function ThanksSpectator() {
 
       <Card className="w-full max-w-sm p-5 text-left">
         <Detail label="When" value={EVENT.date} />
-        <Detail label="Time" value={EVENT.time} />
+        <Detail label="Arrival Time" value={EVENT.arrivalTime} />
+        <Detail label="Tournament Start" value={EVENT.tournamentStart} />
         <Detail label="Where" value={EVENT.place} />
         <Detail label="Parking" value={EVENT.parking} />
       </Card>
 
       <div className="flex flex-col gap-3 sm:flex-row">
-        <TransitionLink href="/standings" className={buttonClasses("blue", "lg")}>
-          See the standings 🏆
+        <TransitionLink href="/info1" className={buttonClasses("yellow", "lg")}>
+          📍 Event details
         </TransitionLink>
-        <TransitionLink href="/info1" className={buttonClasses("outline", "lg")}>
-          Event details
+        <TransitionLink href="/standings" className={buttonClasses("outline", "lg")}>
+          See the standings 🏆
         </TransitionLink>
       </div>
     </div>

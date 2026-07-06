@@ -9,7 +9,8 @@ export const metadata: Metadata = { title: "Event Info — Beerio Kart World Cup
 
 const DETAILS = [
   { icon: "📅", label: "Date", value: EVENT.date },
-  { icon: "⏰", label: "Time", value: EVENT.time },
+  { icon: "⏰", label: "Arrival Time", value: EVENT.arrivalTime },
+  { icon: "🏁", label: "Tournament Start", value: EVENT.tournamentStart },
   { icon: "📍", label: "Place", value: EVENT.place },
   { icon: "🎟️", label: "Entry", value: EVENT.entry },
   { icon: "🅿️", label: "Parking", value: EVENT.parking },

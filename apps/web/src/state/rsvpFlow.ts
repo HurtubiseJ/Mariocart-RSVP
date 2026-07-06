@@ -61,7 +61,11 @@ interface RsvpFlowState {
   setRsvpType: (type: RSVPType) => void;
   setNameNumber: (values: { name: string; phone: string }) => void;
   setVibes: (vibes: number) => void;
-  setSkillBreaths: (values: { rated_skill: number; num_breaths: number }) => void;
+  setSkillBreaths: (values: {
+    rated_skill: number;
+    num_breaths: number;
+    ride_home: string;
+  }) => void;
   /** Upload the assembled RSVP, then advance to games (player) or thanks (spectator). */
   acceptAcknowledgments: () => Promise<void>;
   completeReaction: (result: ReactionScore) => Promise<void>;
@@ -100,6 +104,7 @@ export const useRsvpFlow = create<RsvpFlowState>()(
             vibes: rsvp.vibes,
             rated_skill: rsvp.rated_skill,
             num_breaths: rsvp.num_breaths,
+            ride_home: rsvp.ride_home ?? undefined,
             email: rsvp.email ?? undefined,
           });
           set({
@@ -190,6 +195,7 @@ export const useRsvpFlow = create<RsvpFlowState>()(
             rated_skill: null,
             vibes: null,
             num_breaths: null,
+            ride_home: null,
             createdAt: undefined,
           };
           set({
@@ -211,11 +217,11 @@ export const useRsvpFlow = create<RsvpFlowState>()(
           set({ rsvp: { ...rsvp, vibes }, step: "acknowledgments", error: null });
         },
 
-        setSkillBreaths: ({ rated_skill, num_breaths }) => {
+        setSkillBreaths: ({ rated_skill, num_breaths, ride_home }) => {
           const { rsvp } = get();
           if (!rsvp) return;
           set({
-            rsvp: { ...rsvp, rated_skill, num_breaths },
+            rsvp: { ...rsvp, rated_skill, num_breaths, ride_home },
             step: "acknowledgments",
             status: "idle",
             error: null,

@@ -109,6 +109,7 @@ export const mockClient: ApiClient = {
       vibes: body.vibes ?? null,
       rated_skill: body.rated_skill ?? null,
       num_breaths: body.num_breaths ?? null,
+      ride_home: body.ride_home ?? null,
       email: body.email && body.email.length > 0 ? body.email : null,
       createdAt: new Date().toISOString(),
     };
