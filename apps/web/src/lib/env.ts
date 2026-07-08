@@ -13,9 +13,13 @@ const apiUrl = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080").repl
 
 const useMock = process.env.NEXT_PUBLIC_USE_MOCK === "true";
 
+const disableMockFallback = process.env.NEXT_PUBLIC_DISABLE_MOCK_FALLBACK === "true";
+
 export const env = {
   /** Base URL of the Beerio Kart API, no trailing slash. */
   apiUrl,
   /** When true, always use the in-memory mock client. */
   useMock,
+  /** When true, never fall back to mock data — network errors surface instead. */
+  disableMockFallback,
 } as const;

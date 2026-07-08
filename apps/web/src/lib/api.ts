@@ -24,6 +24,8 @@ import {
  *  - otherwise                  -> call the real API, but transparently fall
  *    back to mock data on a *connection* error (server down). HTTP errors
  *    (4xx/5xx) surface as real ApiErrors so validation failures aren't hidden.
+ *  - NEXT_PUBLIC_DISABLE_MOCK_FALLBACK=true -> the connection-error fallback
+ *    is off; network errors surface as ApiErrors and mock data is never used.
  */
 
 export class ApiError extends Error {
@@ -191,7 +193,7 @@ function withFallback<TArgs extends unknown[], TR>(
     try {
       return await real(...args);
     } catch (err) {
-      if (err instanceof ApiError && err.isNetwork) {
+      if (err instanceof ApiError && err.isNetwork && !env.disableMockFallback) {
         if (process.env.NODE_ENV !== "production") {
           console.warn("[api] backend unreachable — using mock data:", err.message);
         }
