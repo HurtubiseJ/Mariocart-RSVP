@@ -100,7 +100,7 @@ export default function RsvpPage() {
         ) : step === "reaction" ? (
           <StepShell
             step={step}
-            title="Skill Check"
+            title="Skill Check - For Tournament Seed"
             subtitle="Seeding game 1 of 2 — easy to start, then it ramps up."
           >
             {status === "submitting" ? (

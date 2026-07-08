@@ -6,7 +6,7 @@ const SECTIONS: Omit<InfoSectionProps, "index">[] = [
   {
     title: "RSVP",
     blurb:
-      "Lock in your spot as a player or spectator — players battle two minigames.",
+      "Lock in your spot as a player or spectator — players play two minigames for seeding.",
     href: "/rsvp",
     cta: "Start",
     accent: "red",
