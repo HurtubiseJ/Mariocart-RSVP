@@ -460,7 +460,7 @@ export default function HistoryPage() {
                   <motion.span
                     aria-hidden
                     animate={{ rotate: expanded ? 180 : 0 }}
-                    className="ml-1 shrink-0 text-ink/40"
+                    className="ml-1 shrink-0 text-ink/40 text-[36px]"
                   >
                     ▾
                   </motion.span>
