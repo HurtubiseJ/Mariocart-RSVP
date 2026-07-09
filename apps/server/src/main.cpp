@@ -20,7 +20,7 @@ int main() {
     // Allow the Next.js frontend (any origin in dev) to call the API.
     auto& cors = app.get_middleware<crow::CORSHandler>();
     cors.global()
-        .origin("https://mariocart-rsvp.vercel.app")
+        .origin("https://www.beeriokart.beer")
         .methods("GET"_method, "POST"_method, "DELETE"_method)
         .headers("Content-Type");
 
