@@ -28,6 +28,7 @@ type Tournament = {
 
 type Player = {
   name: string;
+  note?: string;
   record: string;
   /** True if they won 1st place in any tournament — earns a Mario star. */
   loser?: boolean;
@@ -67,6 +68,7 @@ const PLAYERS: Player[] = [
   },
   {
     name: "John H",
+    note: "Note: Position is Debated. (Many independent reviewers place John at Rank 1...)",
     record: "3-0",
     champion: true,
     tournaments: [
@@ -442,12 +444,17 @@ export default function HistoryPage() {
                             className="h-auto w-auto"
                         />
                     )}
-                    <div className="min-w-0">
-                      <p className="truncate font-head text-lg font-semibold text-ink">
+                    <div className="min-w-24">
+                      <p className="font-head text-lg font-semibold text-ink">
                         {p.name}
                       </p>
-                      <p className="truncate text-xs text-ink/50">{places}</p>
+                      <p className="text-xs text-ink/50">{places}</p>
                     </div>
+                    {p.note && (
+                        <p className="flex text-center shrink font-display text-xs text-ink">
+                            {p.note}
+                        </p>
+                    )}
                   </div>
                   <div className="text-right">
                     <p className="font-display text-xl leading-none text-ink">
