@@ -410,6 +410,17 @@ export const useRsvpFlow = create<RsvpFlowState>()(
           ? window.sessionStorage
           : { getItem: () => null, setItem: () => {}, removeItem: () => {} },
       ),
+      // status/error are transient request state: persisting "submitting"
+      // across a refresh would rehydrate a permanently stuck submit button
+      // (the request it described is gone). Persist only the durable fields.
+      partialize: (s) => ({
+        step: s.step,
+        rsvp_type: s.rsvp_type,
+        rsvp: s.rsvp,
+        reaction: s.reaction,
+        flappy: s.flappy,
+        outcome: s.outcome,
+      }),
     },
   ),
 );
