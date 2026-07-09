@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AddToCalendar } from "@/components/AddToCalendar";
 import { PageShell } from "@/components/layout/PageShell";
 import { Card } from "@/components/ui/Card";
 import { EVENT } from "@/lib/event";
@@ -32,6 +33,9 @@ export default function InfoPage() {
               </div>
             </Card>
           ))}
+        </div>
+        <div className="flex justify-center">
+          <AddToCalendar />
         </div>
       </div>
     </PageShell>

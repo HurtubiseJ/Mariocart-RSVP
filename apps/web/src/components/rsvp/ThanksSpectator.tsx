@@ -3,6 +3,7 @@
 import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
+import { AddToCalendar } from "@/components/AddToCalendar";
 import { TransitionLink } from "@/components/transition/TransitionLink";
 import { buttonClasses } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -56,6 +57,8 @@ export function ThanksSpectator() {
         <Detail label="Where" value={EVENT.place} />
         <Detail label="Parking" value={EVENT.parking} />
       </Card>
+
+      <AddToCalendar />
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <TransitionLink href="/standings" className={buttonClasses("outline", "lg")}>

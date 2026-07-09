@@ -9,6 +9,13 @@ export const EVENT = {
   dateShort: "August 22, 2026",
   /** RSVP cancellation cutoff (one week before). */
   cancelBy: "August 15, 2026",
+  /**
+   * Machine-readable start/end for "add to calendar" links (5–11 PM).
+   * Floating local time on purpose: every guest is local, so we skip
+   * timezone handling entirely.
+   */
+  startsAt: "2026-08-22T17:00:00",
+  endsAt: "2026-08-22T23:00:00",
   /** When to show up. */
   arrivalTime: "Plan on 5 (TBD) (Late = potential disqualification)",
   /** When the tournament itself kicks off. */
