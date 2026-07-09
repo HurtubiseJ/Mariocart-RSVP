@@ -68,7 +68,6 @@ const PLAYERS: Player[] = [
   },
   {
     name: "John H",
-    note: "Note: Position is Debated. (Many independent reviewers place John at Rank 1...)",
     record: "3-0",
     champion: true,
     tournaments: [
