@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Beerio Kart World Cup",
     description: "RSVP, claim your tournament seed.",
-    images: ["/assets/title.jpeg"],
+    images: ["/assets/Cow.png"],
   },
 };
 

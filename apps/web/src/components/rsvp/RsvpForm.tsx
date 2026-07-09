@@ -11,6 +11,8 @@ import { useRsvpFlow } from "@/state/rsvpFlow";
 export function RsvpForm() {
   const setNameNumber = useRsvpFlow((s) => s.setNameNumber);
   const rsvpType = useRsvpFlow((s) => s.rsvp_type);
+  // Prefill from the store so backwards navigation doesn't lose entered values.
+  const rsvp = useRsvpFlow((s) => s.rsvp);
 
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -20,7 +22,11 @@ export function RsvpForm() {
     formState: { errors, isSubmitting },
   } = useForm<RsvpFormValues>({
     resolver: zodResolver(rsvpFormSchema),
-    defaultValues: { name: "", phone: "", email: "" },
+    defaultValues: {
+      name: rsvp?.name ?? "",
+      phone: rsvp?.phone ?? "",
+      email: rsvp?.email ?? "",
+    },
   });
 
   const onSubmit = handleSubmit(async (values) => {

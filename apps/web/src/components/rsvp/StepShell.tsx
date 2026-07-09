@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/cn";
-import { useRsvpFlow, type FlowStep } from "@/state/rsvpFlow";
+import { previousStep, useRsvpFlow, type FlowStep } from "@/state/rsvpFlow";
 
 /** The visible progress steps for each participation path. */
 const SPECTATOR_STEPS: { key: FlowStep; label: string }[] = [
@@ -33,15 +33,29 @@ export function StepShell({
   children: React.ReactNode;
 }) {
   const rsvpType = useRsvpFlow((s) => s.rsvp_type);
+  const status = useRsvpFlow((s) => s.status);
+  const goBack = useRsvpFlow((s) => s.goBack);
   const steps = rsvpType === "spectator" ? SPECTATOR_STEPS : PLAYER_STEPS;
   const activeIdx = Math.max(
     0,
     steps.findIndex((s) => s.key === step),
   );
+  const canGoBack = previousStep(step, rsvpType) !== null;
 
   return (
     <div className="flex flex-col gap-6">
-      <ol className="flex items-center justify-center">
+      <div className="flex flex-col gap-3">
+        {canGoBack && (
+          <button
+            type="button"
+            onClick={goBack}
+            disabled={status === "submitting"}
+            className="self-start font-head text-sm font-bold text-paper/70 transition-colors hover:text-paper disabled:opacity-40"
+          >
+            ← Back
+          </button>
+        )}
+        <ol className="flex items-center justify-center">
         {steps.map((s, idx) => (
           <li key={s.key} className="flex items-center">
             <div
@@ -65,7 +79,8 @@ export function StepShell({
             )}
           </li>
         ))}
-      </ol>
+        </ol>
+      </div>
 
       <header className="text-center">
         <h1 className="font-display text-3xl text-paper tracking-wide sm:text-4xl">{title}</h1>

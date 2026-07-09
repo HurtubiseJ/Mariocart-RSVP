@@ -21,6 +21,8 @@ import {
  * minigames, which submit their per-game scores and then reveal a seed.
  *
  * Persisted to sessionStorage so a refresh mid-flow doesn't wipe progress.
+ * Steps before the upload allow backwards navigation (goBack); from the
+ * seeding games onward the flow is forward-only.
  */
 
 export type FlowStep =
@@ -40,6 +42,28 @@ export const MIN_VIBES = 6;
 
 /** Sentinel num_breaths value meaning "bad at drinking" (can't chug). */
 export const BAD_AT_DRINKING = 0;
+
+/**
+ * The step to return to when navigating backwards, or null when back
+ * navigation is not allowed (first step, and everything from the seeding
+ * games onward — the RSVP has been uploaded by then).
+ */
+export function previousStep(
+  step: FlowStep,
+  type: RSVPType | undefined,
+): FlowStep | null {
+  switch (step) {
+    case "name-num":
+      return "rsvp-type";
+    case "vibes":
+    case "rate-skill-breaths":
+      return "name-num";
+    case "acknowledgments":
+      return type === "spectator" ? "vibes" : "rate-skill-breaths";
+    default:
+      return null;
+  }
+}
 
 export interface SeedOutcome {
   cumulativeScore: number;
@@ -74,6 +98,8 @@ interface RsvpFlowState {
   submitAndSeed: () => Promise<void>;
   /** Re-attempt the current step's pending submission after a failure. */
   retry: () => Promise<void>;
+  /** Step backwards (only allowed before the seeding games — see previousStep). */
+  goBack: () => void;
   reset: () => void;
 }
 
@@ -274,6 +300,21 @@ export const useRsvpFlow = create<RsvpFlowState>()(
               error: e instanceof Error ? e.message : "Could not save your score",
             });
           }
+        },
+
+        goBack: () => {
+          const { step, rsvp_type, status } = get();
+          if (status === "submitting") return;
+          const prev = previousStep(step, rsvp_type);
+          if (!prev) return;
+          set({
+            step: prev,
+            status: "idle",
+            error: null,
+            // Returning to the type choice unlocks the other path; stale
+            // branch fields on the rsvp are wiped when setNameNumber rebuilds it.
+            ...(prev === "rsvp-type" ? { rsvp_type: undefined } : null),
+          });
         },
 
         retry: async () => {

@@ -10,7 +10,7 @@ export const EVENT = {
   /** RSVP cancellation cutoff (one week before). */
   cancelBy: "August 15, 2026",
   /** When to show up. */
-  arrivalTime: "Plan on 5 (TBD)",
+  arrivalTime: "Plan on 5 (TBD) (Late = potential disqualification)",
   /** When the tournament itself kicks off. */
   tournamentStart: "(TBD)",
   place: "Luke's casa",

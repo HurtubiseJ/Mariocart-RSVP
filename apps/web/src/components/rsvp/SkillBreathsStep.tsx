@@ -22,9 +22,16 @@ const RIDE_HOME_OPTIONS: { value: string; label: string }[] = [
 /** Player step: rate Mario Kart Wii skill + breaths to chug a beer. */
 export function SkillBreathsStep() {
   const setSkillBreaths = useRsvpFlow((s) => s.setSkillBreaths);
-  const [skill, setSkill] = useState<number | null>(null);
-  const [breaths, setBreaths] = useState<number | null>(null);
-  const [rideHome, setRideHome] = useState<string | null>(null);
+  // Prefill from the store so backwards navigation doesn't lose the answers.
+  const [skill, setSkill] = useState<number | null>(
+    () => useRsvpFlow.getState().rsvp?.rated_skill ?? null,
+  );
+  const [breaths, setBreaths] = useState<number | null>(
+    () => useRsvpFlow.getState().rsvp?.num_breaths ?? null,
+  );
+  const [rideHome, setRideHome] = useState<string | null>(
+    () => useRsvpFlow.getState().rsvp?.ride_home ?? null,
+  );
 
   const ready = skill !== null && breaths !== null && rideHome !== null;
 
