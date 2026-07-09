@@ -39,7 +39,7 @@ export function SkillBreathsStep() {
     <div className="flex flex-col gap-7">
       <div className="flex flex-col gap-3">
         <h2 className="font-head text-base font-bold text-paper">
-          Rate your Mario Kart Wii skill
+          Rate your Mario Kart Wii skill (Motion Controls)
         </h2>
         <RatingScale
           name="skill"

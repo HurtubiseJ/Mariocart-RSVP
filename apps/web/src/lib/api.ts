@@ -24,7 +24,7 @@ import {
  *  - otherwise                  -> call the real API, but transparently fall
  *    back to mock data on a *connection* error (server down). HTTP errors
  *    (4xx/5xx) surface as real ApiErrors so validation failures aren't hidden.
- *  - NEXT_PUBLIC_DISABLE_MOCK_FALLBACK=true -> the connection-error fallback
+ *  - NEXT_PUBLIC_DISABLE_FALLBACK=true -> the connection-error fallback
  *    is off; network errors surface as ApiErrors and mock data is never used.
  */
 

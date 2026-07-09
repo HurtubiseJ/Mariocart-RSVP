@@ -15,6 +15,6 @@ export const EVENT = {
   tournamentStart: "(TBD)",
   place: "Luke's casa",
   entry: "Free with RSVP",
-  parking: "Park at the Marysville Library and walk over",
+  parking: "Park at Luke's Casa but please carpool!",
   host: "Luke",
 } as const;

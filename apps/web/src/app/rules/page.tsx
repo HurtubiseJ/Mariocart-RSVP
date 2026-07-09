@@ -36,8 +36,8 @@ const RULES = [
   },
   {
     n: 3,
-    title: "BYOB",
-    body: "If you are brining a personal supply of drinks for participation, they MUST be carbonated.",
+    title: "BYOB (Optional)",
+    body: "IF you are brining a personal supply of drinks for participation, they MUST be carbonated.",
   },
   {
     n: 4,

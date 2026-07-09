@@ -13,7 +13,7 @@ const apiUrl = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080").repl
 
 const useMock = process.env.NEXT_PUBLIC_USE_MOCK === "true";
 
-const disableMockFallback = process.env.NEXT_PUBLIC_DISABLE_MOCK_FALLBACK === "true";
+const disableMockFallback = process.env.NEXT_PUBLIC_DISABLE_FALLBACK === "true";
 
 export const env = {
   /** Base URL of the Beerio Kart API, no trailing slash. */
