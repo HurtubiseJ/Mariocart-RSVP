@@ -1,10 +1,18 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { api } from "@/lib/api";
-import type { FlappyScore, GameSubmitRequest, ReactionScore, Rsvp, RSVPType } from "@/lib/api.types";
+import type {
+  FlappyScore,
+  GameBreakdown,
+  GameSubmitRequest,
+  ReactionScore,
+  Rsvp,
+  RSVPType,
+} from "@/lib/api.types";
 import { normalizePhone } from "@/lib/phone";
 import {
   cumulativeScore,
+  SCORING,
   weightedFlappyScore,
   weightedReactionScore,
 } from "@/lib/scoring";
@@ -103,6 +111,38 @@ interface RsvpFlowState {
   reset: () => void;
 }
 
+/**
+ * Rebuild local game state from a recovered RSVP's stored game results. The
+ * raw values ride in `details`; the stored `score` is the weighted
+ * contribution, so it's un-weighted as a fallback when details are missing.
+ */
+function recoveredReaction(g: GameBreakdown): ReactionScore {
+  const d = g.details ?? {};
+  return {
+    hits: typeof d.hits === "number" ? d.hits : 0,
+    missedDistance: typeof d.missedDistance === "number" ? d.missedDistance : 0,
+    score:
+      typeof d.rawScore === "number"
+        ? d.rawScore
+        : Math.round(g.score / SCORING.W_REACTION),
+  };
+}
+
+function recoveredFlappy(g: GameBreakdown): FlappyScore {
+  const d = g.details ?? {};
+  const runs = Array.isArray(d.runs)
+    ? d.runs.filter((r): r is number => typeof r === "number")
+    : [];
+  return {
+    bestGatesPassed: typeof d.bestGatesPassed === "number" ? d.bestGatesPassed : 0,
+    runs,
+    score:
+      typeof d.rawScore === "number"
+        ? d.rawScore
+        : Math.round(g.score / SCORING.W_FLAPPY),
+  };
+}
+
 const initial = {
   step: "rsvp-type" as FlowStep,
   rsvp_type: undefined,
@@ -119,12 +159,14 @@ export const useRsvpFlow = create<RsvpFlowState>()(
     (set, get) => {
       // Upload the assembled RSVP. Spectators skip the games; players go on to
       // the reaction game, which needs the freshly-minted rsvp.id to submit.
+      // A phone that already RSVP'd gets the stored record back (plus any game
+      // results), so the flow resumes wherever that person left off.
       const uploadRsvp = async () => {
         const { rsvp } = get();
         if (!rsvp) return;
         set({ status: "submitting", error: null });
         try {
-          const created = await api.createRsvp({
+          const { games = [], ...created } = await api.createRsvp({
             name: rsvp.name,
             phone: rsvp.phone,
             rsvp_type: rsvp.rsvp_type,
@@ -134,12 +176,46 @@ export const useRsvpFlow = create<RsvpFlowState>()(
             ride_home: rsvp.ride_home ?? undefined,
             email: rsvp.email ?? undefined,
           });
+
+          if (created.rsvp_type !== "player") {
+            set({ rsvp: created, status: "idle", error: null, step: "thanks" });
+            return;
+          }
+
+          const reactionGame = games.find((g) => g.game === "reaction");
+          const flappyGame = games.find((g) => g.game === "flappy");
+          if (!reactionGame) {
+            set({
+              rsvp: created,
+              reaction: null,
+              flappy: null,
+              status: "idle",
+              error: null,
+              step: "reaction",
+            });
+            return;
+          }
+          const reaction = recoveredReaction(reactionGame);
+          if (!flappyGame) {
+            set({
+              rsvp: created,
+              reaction,
+              flappy: null,
+              status: "idle",
+              error: null,
+              step: "flappy",
+            });
+            return;
+          }
+          // Both games already submitted: rank and land on the seed screen.
           set({
             rsvp: created,
+            reaction,
+            flappy: recoveredFlappy(flappyGame),
             status: "idle",
             error: null,
-            step: created.rsvp_type === "player" ? "reaction" : "thanks",
           });
+          await get().submitAndSeed();
         } catch (e) {
           set({
             status: "error",

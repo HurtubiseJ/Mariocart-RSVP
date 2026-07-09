@@ -98,7 +98,12 @@ def make_rsvp(api: ApiClient) -> Iterator[Callable[..., dict[str, Any]]]:
     created_ids: list[int] = []
 
     def _make(**overrides: Any) -> dict[str, Any]:
-        payload: dict[str, Any] = {"name": "Test Racer", "email": unique_email(), "phone": unique_phone()}
+        payload: dict[str, Any] = {
+            "name": "Test Racer",
+            "email": unique_email(),
+            "phone": unique_phone(),
+            "rsvp_type": "player",
+        }
         payload.update(overrides)
         resp = api.post("/api/rsvps", json=payload)
         assert resp.status_code == 201, f"create failed: {resp.status_code} {resp.text}"

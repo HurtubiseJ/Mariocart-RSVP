@@ -1,6 +1,6 @@
 import type {
   ApiClient,
-  Rsvp,
+  CreatedRsvp,
   RsvpCreateRequest,
   ScoreSubmitRequest,
   ScoreSubmitResponse,
@@ -41,9 +41,11 @@ export class ApiError extends Error {
   }
 }
 
-const TIMEOUT_MS = 3500;
+const TIMEOUT_MS = 5000;
+/** 1 initial attempt + 1 automatic retry on network errors — 10s worst case. */
+const MAX_ATTEMPTS = 2;
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+async function attempt<T>(path: string, init?: RequestInit): Promise<T> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
   try {
@@ -64,12 +66,32 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   } catch (err) {
     if (err instanceof ApiError) throw err;
     // fetch throws TypeError on network failure, AbortError on timeout.
-    throw new ApiError(err instanceof Error ? err.message : "network error", {
-      isNetwork: true,
-    });
+    const timedOut = err instanceof Error && err.name === "AbortError";
+    throw new ApiError(
+      timedOut
+        ? "The server took too long to respond — please try again."
+        : err instanceof Error
+          ? err.message
+          : "network error",
+      { isNetwork: true },
+    );
   } finally {
     clearTimeout(timer);
   }
+}
+
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  let lastError: ApiError | undefined;
+  for (let i = 0; i < MAX_ATTEMPTS; i++) {
+    try {
+      return await attempt<T>(path, init);
+    } catch (err) {
+      // Only network-class failures are retried; HTTP errors surface at once.
+      if (!(err instanceof ApiError) || !err.isNetwork) throw err;
+      lastError = err;
+    }
+  }
+  throw lastError;
 }
 
 // --- real implementations (map snake_case <-> camelCase) -------------------
@@ -84,7 +106,7 @@ const realClient: ApiClient = {
     }
   },
 
-  async createRsvp(body: RsvpCreateRequest): Promise<Rsvp> {
+  async createRsvp(body: RsvpCreateRequest): Promise<CreatedRsvp> {
     const raw = await request<unknown>("/api/rsvps", {
       method: "POST",
       body: JSON.stringify({
@@ -112,6 +134,7 @@ const realClient: ApiClient = {
       ride_home: p.ride_home ?? null,
       email: p.email ?? null,
       createdAt: p.created_at,
+      games: p.games,
     };
   },
 

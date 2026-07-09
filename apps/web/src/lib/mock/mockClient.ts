@@ -1,5 +1,6 @@
 import type {
   ApiClient,
+  CreatedRsvp,
   GameBreakdown,
   GameSubmitRequest,
   Rsvp,
@@ -99,13 +100,22 @@ export const mockClient: ApiClient = {
     return true;
   },
 
-  async createRsvp(body: RsvpCreateRequest): Promise<Rsvp> {
+  async createRsvp(body: RsvpCreateRequest): Promise<CreatedRsvp> {
     await delay();
     const rsvps = readJSON<Rsvp[]>(RSVP_KEY, []);
+    const phone = normalizePhone(body.phone);
+
+    // Mirror the backend's recovery: a phone that already RSVP'd gets its
+    // stored record back (plus any game results) instead of a duplicate.
+    const existing = rsvps.find((r) => r.phone === phone);
+    if (existing) {
+      return { ...existing, games: existing.id != null ? gamesFor(existing.id) : [] };
+    }
+
     const rsvp: Rsvp = {
       id: nextId(rsvps),
       name: body.name,
-      phone: normalizePhone(body.phone),
+      phone,
       rsvp_type: body.rsvp_type,
       vibes: body.vibes ?? null,
       rated_skill: body.rated_skill ?? null,

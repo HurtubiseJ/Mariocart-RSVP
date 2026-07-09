@@ -17,10 +17,11 @@
 int main() {
     crow::App<crow::CORSHandler> app;
 
-    // Allow the Next.js frontend (any origin in dev) to call the API.
+    // Allow any origin: the API carries no cookies/credentials, so the origin
+    // pin added no protection while breaking apex/www/preview hosts.
     auto& cors = app.get_middleware<crow::CORSHandler>();
     cors.global()
-        .origin("https://www.beeriokart.beer")
+        .origin("*")
         .methods("GET"_method, "POST"_method, "DELETE"_method)
         .headers("Content-Type");
 
@@ -85,7 +86,7 @@ int main() {
             return crow::response{400, "name and phone must be strings"};
         }
 
-        if (in["rsvp_type"].t() != crow::json::type::String) {
+        if (!in.has("rsvp_type") || in["rsvp_type"].t() != crow::json::type::String) {
             return crow::response{400, "Type: (rsvp_type -> player|spectator) is required."};
         }
 
@@ -93,9 +94,10 @@ int main() {
         // Canonicalise the phone (strip spaces/()/+/-) before it hits the DB.
         const std::string phone = db::normalize_phone(std::string(in["phone"].s()));
         const std::string p_type = std::string(in["rsvp_type"].s());
-        const int vibes = in["vibes"].i();
-        const int num_b = in["num_breaths"].i();
-        const int rated_skill = in["rated_skill"].i();
+        // Optional ints fall back to the column defaults' sentinels.
+        const int vibes = in.has("vibes") ? static_cast<int>(in["vibes"].i()) : 0;
+        const int num_b = in.has("num_breaths") ? static_cast<int>(in["num_breaths"].i()) : -1;
+        const int rated_skill = in.has("rated_skill") ? static_cast<int>(in["rated_skill"].i()) : -1;
 
         // email is optional: the frontend sends JSON null when omitted.
         std::optional<std::string> email;
@@ -128,20 +130,59 @@ int main() {
         try {
             pqxx::connection conn{dsn};
             pqxx::work tx{conn};
-            pqxx::row row = tx.exec_params1(
+            // A duplicate phone is recovery, not an error: DO NOTHING makes the
+            // insert return no row, and the stored RSVP is returned instead so
+            // the client can resume where that person left off.
+            pqxx::result inserted = tx.exec_params(
                 "INSERT INTO rsvps "
                 "(name, email, phone, attending, guests, favorite_character, message, vibes, rsvp_type, num_breaths, rated_skill, ride_home) "
                 "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) "
+                "ON CONFLICT (phone) DO NOTHING "
                 "RETURNING id, name, email, phone, attending, guests, "
                 "favorite_character, message, vibes, rsvp_type, num_breaths, rated_skill, created_at",
                 name, email, phone, attending, guests, favorite_character, message, vibes, p_type, num_b, rated_skill, ride_home);
+
+            if (!inserted.empty()) {
+                tx.commit();
+                crow::response res{db::row_to_json(pqxx::row{inserted[0]})};
+                res.code = 201;
+                return res;
+            }
+
+            // Phone already RSVP'd: return the stored row (the new submission's
+            // fields are ignored) plus any game results so the client knows
+            // which step to resume at.
+            pqxx::row existing = tx.exec_params1(
+                "SELECT id, name, email, phone, attending, guests, "
+                "favorite_character, message, vibes, rsvp_type, num_breaths, rated_skill, created_at "
+                "FROM rsvps WHERE phone = $1",
+                phone);
+            pqxx::result games = tx.exec_params(
+                "SELECT game, trial, score, details FROM game_scores "
+                "WHERE rsvp = $1 ORDER BY game",
+                existing["id"].as<int>());
             tx.commit();
 
-            crow::response res{db::row_to_json(row)};
-            res.code = 201;
+            crow::json::wvalue j = db::row_to_json(existing);
+            std::vector<crow::json::wvalue> game_items;
+            for (const auto& g : games) {
+                crow::json::wvalue gj;
+                gj["game"]    = g["game"].as<std::string>();
+                gj["trial"]   = g["trial"].as<int>();
+                gj["score"]   = g["score"].as<int>();
+                gj["details"] = g["details"].is_null()
+                    ? crow::json::wvalue()
+                    : crow::json::load(g["details"].as<std::string>());
+                game_items.push_back(std::move(gj));
+            }
+            j["games"] = crow::json::wvalue(game_items);
+
+            crow::response res{std::move(j)};
+            res.code = 200;
             return res;
         } catch (const pqxx::unique_violation&) {
-            return crow::response{409, "an RSVP with that phone already exists"};
+            // The phone conflict is absorbed above, so only email can land here.
+            return crow::response{409, "an RSVP with that email already exists"};
         } catch (const std::exception& e) {
             return crow::response{500, std::string{"db error: "} + e.what()};
         }

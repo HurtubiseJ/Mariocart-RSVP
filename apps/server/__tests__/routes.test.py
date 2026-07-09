@@ -7,6 +7,11 @@ builds + launches + tears down) or, against a server you already started with
 from __future__ import annotations
 
 import time
+from uuid import uuid4
+
+
+def fresh_email() -> str:
+    return f"dup-{uuid4().hex[:12]}@example.com"
 
 
 # --- /health ---------------------------------------------------------------
@@ -50,14 +55,53 @@ def test_create_requires_name_and_email(api):
 
 
 def test_duplicate_email_conflicts(api, make_rsvp):
+    # Same email but a DIFFERENT phone, so the email constraint is what fires
+    # (a duplicate phone is recovery, not a conflict — see below).
     rsvp = make_rsvp()
-    dup = api.post("/api/rsvps", json={"name": "Clone", "email": rsvp["email"], "phone": rsvp["phone"]})
+    dup = api.post("/api/rsvps", json={
+        "name": "Clone", "email": rsvp["email"], "phone": rsvp["phone"] + "9",
+        "rsvp_type": "player",
+    })
     assert dup.status_code == 409
 
-def test_duplicate_phone_conflicts(api, make_rsvp):
+
+def test_duplicate_phone_returns_existing(api, make_rsvp):
+    # Re-RSVPing with the same phone recovers the stored row (200, not 409);
+    # the new submission's fields are ignored.
+    rsvp = make_rsvp(name="Original")
+    dup = api.post("/api/rsvps", json={
+        "name": "Clone", "phone": rsvp["phone"], "email": fresh_email(),
+        "rsvp_type": "spectator",
+    })
+    assert dup.status_code == 200
+    body = dup.json()
+    assert body["id"] == rsvp["id"]
+    assert body["name"] == "Original"
+    assert body["rsvp_type"] == "player"
+    assert body["games"] == []
+
+
+def test_duplicate_phone_returns_games(api, make_rsvp):
+    # Recovery includes any game results already submitted, so the client can
+    # resume mid-flow.
     rsvp = make_rsvp()
-    dup = api.post("/api/rsvps", json={"name": "Clone", "phone": rsvp["phone"], "email": "other@ex.com"})
-    assert dup.status_code == 409
+    game = api.post("/api/game", json={
+        "rsvp_id": rsvp["id"], "game": "reaction", "trial": 1, "score": 400,
+        "details": {"rawScore": 800, "hits": 3, "missedDistance": 12},
+    })
+    assert game.status_code == 200
+
+    dup = api.post("/api/rsvps", json={
+        "name": "Clone", "phone": rsvp["phone"], "email": fresh_email(),
+        "rsvp_type": "player",
+    })
+    assert dup.status_code == 200
+    games = dup.json()["games"]
+    assert len(games) == 1
+    assert games[0]["game"] == "reaction"
+    assert games[0]["trial"] == 1
+    assert games[0]["score"] == 400
+    assert games[0]["details"]["rawScore"] == 800
 
 # --- GET /api/rsvps/<id> ---------------------------------------------------
 

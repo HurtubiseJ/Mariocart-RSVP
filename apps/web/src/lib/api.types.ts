@@ -38,6 +38,15 @@ export interface Rsvp {
   createdAt: string | undefined;
 }
 
+/**
+ * What createRsvp resolves to. When the phone already had an RSVP the server
+ * returns the stored record (the new submission is ignored) plus any game
+ * results already submitted, so the client can resume at the right step.
+ */
+export interface CreatedRsvp extends Rsvp {
+  games?: GameBreakdown[];
+}
+
 // --- Scores ---------------------------------------------------------------
 
 /** Raw + derived results of the reaction (Dead-by-Daylight-style) minigame. */
@@ -124,7 +133,7 @@ export type StandingsResponse = StandingEntry[];
 
 export interface ApiClient {
   health(): Promise<boolean>;
-  createRsvp(body: RsvpCreateRequest): Promise<Rsvp>;
+  createRsvp(body: RsvpCreateRequest): Promise<CreatedRsvp>;
   submitGame(body: GameSubmitRequest): Promise<boolean>;
   submitScore(body: ScoreSubmitRequest): Promise<ScoreSubmitResponse>;
   getStandings(): Promise<StandingsResponse>;

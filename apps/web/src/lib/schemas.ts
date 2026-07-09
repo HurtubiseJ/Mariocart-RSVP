@@ -61,6 +61,13 @@ export type UnrsvpFormValues = z.infer<typeof unrsvpFormSchema>;
 
 // --- API response parsers (raw snake_case from the server) -----------------
 
+export const gameBreakdownSchema = z.object({
+  game: z.enum(["reaction", "flappy"]),
+  trial: z.number(),
+  score: z.number(),
+  details: z.record(z.string(), z.unknown()).nullable(),
+});
+
 export const rsvpResponseSchema = z.object({
   id: z.number(),
   name: z.string(),
@@ -72,6 +79,9 @@ export const rsvpResponseSchema = z.object({
   rated_skill: z.number().nullable().optional(),
   ride_home: z.string().nullable().optional(),
   created_at: z.string(),
+  // Present when this phone already had an RSVP (recovery): the game results
+  // submitted so far, so the flow can resume at the right step.
+  games: z.array(gameBreakdownSchema).optional(),
 });
 
 export const scoreSubmitResponseSchema = z.object({
@@ -80,13 +90,6 @@ export const scoreSubmitResponseSchema = z.object({
   seed: z.number(),
   rank: z.number(),
   total_players: z.number(),
-});
-
-export const gameBreakdownSchema = z.object({
-  game: z.enum(["reaction", "flappy"]),
-  trial: z.number(),
-  score: z.number(),
-  details: z.record(z.string(), z.unknown()).nullable(),
 });
 
 export const standingEntrySchema = z.object({
