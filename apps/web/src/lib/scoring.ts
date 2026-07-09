@@ -18,7 +18,7 @@ export const SCORING = {
   GATE_VALUE: 120,
   /** Scoring weight between the two flappy games */
   HIGHEST_SCORE_WEIGHT: 1.0,
-  LOWEST_SCORE_WEIGHT: 0.5,
+  LOWEST_SCORE_WEIGHT: 0.1,
   /** Weight of the reaction game in the cumulative score. */
   W_REACTION: 0.5,
   /** Weight of the Flappy game in the cumulative score. */
