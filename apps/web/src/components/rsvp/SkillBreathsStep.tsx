@@ -7,9 +7,9 @@ import { BAD_AT_DRINKING, useRsvpFlow } from "@/state/rsvpFlow";
 import { RatingScale } from "./RatingScale";
 
 const BREATH_OPTIONS: { value: number; label: string }[] = [
-  { value: 1, label: "1 breath" },
-  { value: 2, label: "2 breaths" },
-  { value: 3, label: "3 breaths" },
+  { value: 1, label: "1 Drink" },
+  { value: 2, label: "2 Drink" },
+  { value: 3, label: "3 Drink" },
   { value: BAD_AT_DRINKING, label: "Bad at drinking" },
 ];
 
@@ -52,7 +52,7 @@ export function SkillBreathsStep() {
 
       <div className="flex flex-col gap-3">
         <h2 className="font-head text-base font-bold text-paper">
-          How many breaths to chug a beer?
+          How many sperate drinks to chug a beer?
         </h2>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {BREATH_OPTIONS.map((opt) => {
